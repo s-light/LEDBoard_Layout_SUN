@@ -1,33 +1,53 @@
 <!--lint disable list-item-indent-->
-<!--lint disable list-item-bullet-indent-->
 
 # LEDBoard Layout 'Sun'
 'Sun' build with [LEDBoard 4x4 16bit](https://github.com/s-light/LEDBoard_4x4_16bit)
 
-## [Mounting Sun](mounting_sun.md)
+
+
+## arduino test sketch
+have a look at [sw/LEDBoard_HWTest_Sun](sw/LEDBoard_HWTest_Sun/readme.md)
+how to setup an arduino board to do basic testings for the completed sun.
+
+## control software
+to control the sun / display content i have chosen to separate
+this in two parts:
+
+First i use an Arietta embedded linux board as
+Network (Art-Net and E1.31 / sACN) two SPI/TLC5971 converter.
+Additionally this should get basic 'playback' capabilities.
+Something like  
+`automatically start a rainbow loop on system-startup`  
+--> for this task every embedded board should fit that has a free native SPI output
+and can run debian based linux (for example Raspberry Pi) -
+for ease of use i use the OLA software to create the Network-SPI bridge.
+(currently there is a fork where i develop the [TLC5971 functionality](https://github.com/s-light/ola/tree/SPI_TLC5971_new))
+
+Second there will be 'some Application' of some form running on an power-full
+computer to generate the Data.
+
+SW is a big TODO :-)
+
+
+
+
+## mounting sun
+in [mounting_sun.md](mounting_sun.md) are all information
+regarding the Hardware / frame to build the sun.
 
 ![Mounting Sun](mounting_sun/mounting_sun.svg)
 
-full design: [mounting_sun.svg](mounting_sun/mounting_sun.svg)
-
-Wood-thickness: 5mm
-
-### Parts-list
-- 6x [mounting_sun_arm_acryl.svg](mounting_sun/mounting_sun_arm_acryl.svg)
-- 6x [mounting_sun_arm_wood.svg](mounting_sun/mounting_sun_arm_wood.svg)
-- 1x [mounting_sun_center_acryl.svg](mounting_sun/mounting_sun_center_acryl.svg)
-- 1x [mounting_sun_center_wood.svg](mounting_sun/mounting_sun_center_wood.svg)
-- 6x [mounting_sun_connectors_wood.svg](mounting_sun/mounting_sun_connectors_wood.svg)
-
-#### with heatsink:
-- 38*2x [cylinder head screw M3x12mm](https://www.wegertseder.com/ArticleDetails.aspx?ANR=2588-414)
-- 38*2x [cylinder head screw M3x??mm](https://www.wegertseder.com/ArticleDetails.aspx?ANR=2588-420)
 
 
-#### without heatsink
-- 38*2x [countersunk screw M3x12mm](https://www.wegertseder.com/ArticleDetails.aspx?ANR=2598-430)
-- 38*2x [spacer M3x15mm](https://www.reichelt.de/index.html?ARTICLE=7018&GROUPID=7758&artnr=DA+15MM)
-- 38*2x [bolt M3](https://www.wegertseder.com/ArticleDetails.aspx?AKNUM=3991)
+
+
+
+
+
+
+
+
+
 
 ---
 # License
