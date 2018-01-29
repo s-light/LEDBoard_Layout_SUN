@@ -216,8 +216,9 @@ enum sequencer_modes {
     sequencer_HORIZONTAL4,
     sequencer_SPIRAL,
     sequencer_SPIRAL2,
-    sequencer_SPIRALSUN,
+    sequencer_SUN_SPIRAL,
     sequencer_HPLINE,
+    sequencer_SUN_LINES,
 };
 
 uint8_t sequencer_mode = sequencer_OFF;
@@ -248,12 +249,14 @@ const uint16_t trail[trail_count][colors_per_led] {
     { 55000, 20000,      0},
 };
 
-const uint8_t trail_h_count = 8;
-const uint16_t trail_h[trail_h_count][colors_per_led] {
+const uint8_t trail_line_count = 6;
+const uint16_t trail_line[trail_line_count][colors_per_led] {
     //  red, green,   blue
     {     0,     0,     0},
     {     0,   200,   600},
+    {     0,  1000,  3000},
     {     0,  2000,  6000},
+    {     0, 10000, 30000},
     {     0, 20000, 60000},
 };
 
@@ -348,9 +351,9 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
             out.println(F("\t 'a': toggle sequencer"));
             out.println(F("\t 'a': toggle SPIRAL"));
             out.println(F("\t 'b': toggle SPIRAL2"));
-            out.println(F("\t 'B': toggle SPIRALSUN"));
+            out.println(F("\t 'B': toggle SUN SPIRAL"));
             out.println(F("\t 'c': toggle HORIZONTAL"));
-            out.println(F("\t 'C': toggle HPLINE"));
+            out.println(F("\t 'C': toggle SUN LINES"));
             out.println();
             out.print(F("\t 'I': set sequencer interval 'i65535' ("));
             out.print(sequencer_interval);
@@ -449,10 +452,10 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
             }
         } break;
         case 'B': {
-            out.println(F("\t toggle SPIRALSUN:"));
+            out.println(F("\t toggle SUN SPIRAL:"));
             if (sequencer_mode == sequencer_OFF) {
-                sequencer_mode = sequencer_SPIRALSUN;
-                out.print(F("\t sequencer_mode: SPIRALSUN\n"));
+                sequencer_mode = sequencer_SUN_SPIRAL;
+                out.print(F("\t sequencer_mode: SUN SPIRAL\n"));
                 sequencer_interval = 100;
             }
             else {
@@ -473,11 +476,11 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
             }
         } break;
         case 'C': {
-            out.println(F("\t toggle HPLINE:"));
+            out.println(F("\t toggle SUN_LINES:"));
             if (sequencer_mode == sequencer_OFF) {
-                sequencer_mode = sequencer_HPLINE;
-                out.print(F("\t sequencer_mode: HPLINE\n"));
-                sequencer_interval = 150;
+                sequencer_mode = sequencer_SUN_LINES;
+                out.print(F("\t sequencer_mode: SUN_LINES\n"));
+                sequencer_interval = 100;
             }
             else {
                 sequencer_mode = sequencer_OFF;
@@ -645,7 +648,7 @@ void calculate_step__horizontal() {
 
             // trail
             int8_t trail_step = column - sequencer_current_step;
-            trail_step = trail_h_count - trail_step;
+            trail_step = trail_line_count - trail_step;
             // if (!sequencer_direction_forward) {
             //     // change trail direction
             //     trail_step = trail_count - trail_step;
@@ -654,10 +657,10 @@ void calculate_step__horizontal() {
             // add offset
             // ch = ch_offset + ch;
 
-            if ((trail_step >= 0) && (trail_step < trail_h_count)) {
-                tlc.setChannel(ch + 0, trail_h[trail_step][0]);
-                tlc.setChannel(ch + 1, trail_h[trail_step][1]);
-                tlc.setChannel(ch + 2, trail_h[trail_step][2]);
+            if ((trail_step >= 0) && (trail_step < trail_line_count)) {
+                tlc.setChannel(ch + 0, trail_line[trail_step][0]);
+                tlc.setChannel(ch + 1, trail_line[trail_step][1]);
+                tlc.setChannel(ch + 2, trail_line[trail_step][2]);
             }
             else {
                 // set pixel to low
@@ -864,7 +867,6 @@ void calculate_step__spiral2(uint8_t board_start_index = 0, bool flag_horizontal
     }
 }
 
-
 void calculate_step__spiral2_next() {
     // Serial.println("calculate_step__spiral: ");
 
@@ -898,6 +900,115 @@ void calculate_step__spiral2_next() {
     // Serial.println(sequencer_current_step);
 
 }
+
+
+void calculate_step__line4(uint8_t board_start_index = 0, bool flag_horizontal = false) {
+
+    const uint8_t row_count_vertical = leds_per_column*4;
+    const uint8_t column_count_vertical = leds_per_row;
+    const uint8_t effect_order_vertical[row_count_vertical][column_count_vertical] {
+        {15, 15, 15, 15},
+        {14, 14, 14, 14},
+        {13, 13, 13, 13},
+        {12, 12, 12, 12},
+
+        {11, 11, 11, 11},
+        {10, 10, 10, 10},
+        { 9,  9,  9,  9},
+        { 8,  8,  8,  8},
+
+        { 7,  7,  7,  7},
+        { 6,  6,  6,  6},
+        { 5,  5,  5,  5},
+        { 4,  4,  4,  4},
+
+        { 3,  3,  3,  3},
+        { 2,  2,  2,  2},
+        { 1,  1,  1,  1},
+        { 0,  0,  0,  0},
+    };
+
+    const uint8_t row_count_horizontal = leds_per_column;
+    const uint8_t column_count_horizontal = leds_per_row*4;
+    const uint8_t effect_order_horizontal[row_count_horizontal][column_count_horizontal] {
+        { 3,  3,  3,  3,    3,  3,  3,  3,    3,  3,  3,  3,    3,  3,  3,  3},
+        { 2,  2,  2,  2,    2,  2,  2,  2,    2,  2,  2,  2,    2,  2,  2,  2},
+        { 1,  1,  1,  1,    1,  1,  1,  1,    1,  1,  1,  1,    1,  1,  1,  1},
+        { 0,  0,  0,  0,    0,  0,  0,  0,    0,  0,  0,  0,    0,  0,  0,  0},
+    };
+
+    if (flag_horizontal) {
+        calculate_step__effectmap(
+            &effect_order_horizontal[0][0],
+            row_count_horizontal,
+            column_count_horizontal,
+            board_start_index
+        );
+    }
+    else {
+        calculate_step__effectmap(
+            &effect_order_vertical[0][0],
+            row_count_vertical,
+            column_count_vertical,
+            board_start_index
+        );
+    }
+}
+
+void calculate_step__line4_next() {
+    // prepare next step
+    // Serial.print("sequencer_current_step: ");
+    // Serial.println(sequencer_current_step);
+    const uint8_t spiral_step_count = (leds_per_board * 4)-1;
+    if (sequencer_direction_forward) {
+        // forward
+        if (sequencer_current_step >= spiral_step_count ) {
+            sequencer_current_step = sequencer_current_step - 1;
+            sequencer_direction_forward = false;
+            // Serial.println("direction switch to backwards");
+        }
+        else {
+            sequencer_current_step = sequencer_current_step + 1;
+        }
+    }
+    else {
+        // backwards
+        if (sequencer_current_step <= (trail_count*-1) ) {
+            sequencer_current_step = sequencer_current_step + 1;
+            sequencer_direction_forward = true;
+            // Serial.println("direction switch to forward");
+        }
+        else {
+            sequencer_current_step = sequencer_current_step - 1;
+        }
+    }
+    // Serial.print("next step: ");
+    // Serial.println(sequencer_current_step);
+
+}
+
+
+void calculate_step__sun_spiral_center3(uint8_t board_start_index = 0) {
+    // Serial.println("calculate_step__sun_spiral_center3: ");
+
+    const uint8_t column_count = leds_per_row*3;
+    const uint8_t row_count = leds_per_column*1;
+    const uint8_t spiral_order[row_count][column_count] {
+        { 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11},
+        {13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 12},
+        {12, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13},
+        {11, 10,  9,  8,  7,  6,  5,  4,  3,  2,  1,  0},
+    };
+
+    calculate_step__effectmap(
+        &spiral_order[0][0],
+        row_count,
+        column_count,
+        board_start_index
+    );
+
+}
+
 
 
 // parse the pointer to the first element of the effect_map
@@ -947,12 +1058,22 @@ void calculate_step__effectmap(
                 // Serial.print("; bc: ");
                 // Serial.print(board_column);
 
+                // calculate board offset count
+                uint8_t boards_offset_column = (column / leds_per_row);
+                uint8_t boards_offset_row = (row / leds_per_column);
+                uint8_t boards_offset = boards_offset_column + boards_offset_row;
+
                 pixel = channel_position_map[board_row][board_column];
                 ch = pixel * 3;
                 // Serial.print("; ch: ");
                 // Serial.print(ch);
 
-                ch = ch + colorchannels_per_board;
+                ch = ch + (colorchannels_per_board * boards_offset);
+                // Serial.print("; ch: ");
+                // Serial.print(ch);
+
+                // Serial.print("; ch_offset: ");
+                // Serial.print(ch_offset + );
             }
 
             // Serial.print("; pixel: ");
@@ -1011,190 +1132,6 @@ void calculate_step__effectmap(
 
 }
 
-void calculate_step__horizontal4() {
-    // Serial.println("calculate_step__horizontal4: ");
-
-    for (size_t column = 0; column < leds_per_row; column++) {
-        for (size_t row = 0; row < leds_per_column; row++) {
-
-            uint8_t pixel = channel_position_map[column][row];
-            uint8_t ch = pixel * 3;
-
-
-            // trail
-            int8_t trail_step = column - sequencer_current_step;
-            trail_step = trail_h_count - trail_step;
-            // if (!sequencer_direction_forward) {
-            //     // change trail direction
-            //     trail_step = trail_count - trail_step;
-            // }
-            //
-            // add offset
-            // ch = ch_offset + ch;
-
-            if ((trail_step >= 0) && (trail_step < trail_h_count)) {
-                tlc.setChannel(ch + 0, trail_h[trail_step][0]);
-                tlc.setChannel(ch + 1, trail_h[trail_step][1]);
-                tlc.setChannel(ch + 2, trail_h[trail_step][2]);
-            }
-            else {
-                // set pixel to low
-                tlc.setChannel(ch + 0, 0);
-                tlc.setChannel(ch + 1, 0);
-                tlc.setChannel(ch + 2, 0);
-            }
-
-        }
-    }
-
-    // prepare next step
-    // Serial.print("sequencer_current_step: ");
-    // Serial.println(sequencer_current_step);
-    // sequencer_current_step = sequencer_current_step + 1;
-    // if (sequencer_current_step >= leds_per_column) {
-    //     sequencer_current_step = 0;
-    // }
-    // if (sequencer_current_step > 0) {
-    //     sequencer_current_step = sequencer_current_step - 1;
-    // }
-    // else {
-    //     sequencer_current_step = leds_per_column-1;
-    // }
-    // if (sequencer_direction_forward) {
-    //     // forward
-    //     if (sequencer_current_step >= leds_per_column-1 ) {
-    //         sequencer_current_step = sequencer_current_step - 1;
-    //         sequencer_direction_forward = false;
-    //         // Serial.println("direction switch to backwards");
-    //     }
-    //     else {
-    //         sequencer_current_step = sequencer_current_step + 1;
-    //     }
-    // }
-    // else {
-    //     // backwards
-    //     if (sequencer_current_step == 0 ) {
-    //         sequencer_current_step = sequencer_current_step + 1;
-    //         sequencer_direction_forward = true;
-    //         // Serial.println("direction switch to forward");
-    //     }
-    //     else {
-    //         sequencer_current_step = sequencer_current_step - 1;
-    //     }
-    // }
-
-}
-
-
-
-void calculate_step__sun_spiral_center(uint8_t board_start_index = 0) {
-    // Serial.println("calculate_step__sun_spiral_center: ");
-
-    const uint8_t column_count = leds_per_row*3;
-    const uint8_t row_count = leds_per_column*1;
-    const uint8_t spiral_order[row_count][column_count] {
-        { 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11},
-        {13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 12},
-        {12, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13},
-        {11, 10,  9,  8,  7,  6,  5,  4,  3,  2,  1,  0},
-    };
-
-    uint16_t ch_offset = colorchannels_per_board * board_start_index;
-
-    for (size_t row = 0; row < row_count; row++) {
-        for (size_t column = 0; column < column_count; column++) {
-
-
-            // Serial.print("step ");
-            // Serial.print(sequencer_current_step);
-            // Serial.print("; r");
-            // Serial.print(row);
-            // Serial.print("; c");
-            // Serial.print(column);
-
-            uint8_t pixel = 0;
-            uint16_t ch = 0;
-
-            if ((column < leds_per_row) && (row < leds_per_column)) {
-                // first board
-                pixel = channel_position_map[row][column];
-                ch = pixel * 3;
-            }
-            else {
-                // second board
-                uint8_t board_column = column;
-                uint8_t board_row = row;
-
-                if (column >= leds_per_row) {
-                    board_column = column % leds_per_row;
-                }
-                if (row >= leds_per_column) {
-                    board_row = row % leds_per_column;
-                }
-
-                // Serial.print("; br: ");
-                // Serial.print(board_row);
-                // Serial.print("; bc: ");
-                // Serial.print(board_column);
-
-                // calculate board offset count
-                uint8_t boards_offset_column = (column / leds_per_row);
-                uint8_t boards_offset_row = (row / leds_per_column);
-                uint8_t boards_offset = boards_offset_column + boards_offset_row;
-
-                pixel = channel_position_map[board_row][board_column];
-                ch = pixel * 3;
-                // Serial.print("; ch: ");
-                // Serial.print(ch);
-
-                ch = ch + (colorchannels_per_board * boards_offset);
-                // Serial.print("; ch: ");
-                // Serial.print(ch);
-
-                // Serial.print("; ch_offset: ");
-                // Serial.print(ch_offset + );
-            }
-
-            uint8_t spiral_step = spiral_order[row][column];
-
-            // trail
-            int8_t trail_step = spiral_step - sequencer_current_step;
-
-            if (!sequencer_direction_forward) {
-                // change trail direction
-                trail_step = trail_count - trail_step;
-            }
-
-            // Serial.print("; ch: ");
-            // Serial.print(ch);
-
-            // add offset
-            ch = ch_offset + ch;
-
-            // Serial.print("; ch_offset: ");
-            // Serial.print(ch_offset);
-            // Serial.print("; ch: ");
-            // Serial.print(ch);
-            // Serial.println();
-
-            if ((trail_step >= 0) && (trail_step < trail_count)) {
-                tlc.setChannel(ch + 0, trail[trail_step][0]);
-                tlc.setChannel(ch + 1, trail[trail_step][1]);
-                tlc.setChannel(ch + 2, trail[trail_step][2]);
-            }
-            else {
-                // set pixel to low
-                tlc.setChannel(ch + 0, 0);
-                tlc.setChannel(ch + 1, 0);
-                tlc.setChannel(ch + 2, 0);
-            }
-
-            // Serial.println();
-
-        }
-    }
-}
-
 
 
 void calculate_step_singleboard() {
@@ -1250,21 +1187,22 @@ void calculate_step_dualboard() {
             calculate_step__spiral2_next();
         } break;
         case sequencer_HORIZONTAL4: {
-            calculate_step__horizontal4();
+            calculate_step__line4();
         } break;
     }
     // now map to all tlc chips and write theme to output
-    map_to_dualBoards(0, boards_count);
+    map_to_nBoards(0, boards_count, 2);
 }
 
-void calculate_step_mounting_sun() {
+
+void calculate_step_mounting_sun_spiral() {
     // Serial.print("calculate_step: ");
 
     uint8_t board_start_index = 0;
 
     // create animaiton in center
     // first row (3 boards)
-    calculate_step__sun_spiral_center(board_start_index);
+    calculate_step__sun_spiral_center3(board_start_index);
     board_start_index += 3;
 
 
@@ -1281,16 +1219,55 @@ void calculate_step_mounting_sun() {
     board_start_index += 2;
 
     // fourth row (3 boards)
-    calculate_step__sun_spiral_center(board_start_index);
+    calculate_step__sun_spiral_center3(board_start_index);
     board_start_index += 3;
 
 
-    // // use spiral2 for arms
-    // calculate_step__spiral2(board_start_index);
-    // // copy to all arms
-    // map_to_dualBoards(board_start_index, boards_count_sun_arms);
+    // use spiral2 for arms
+    calculate_step__spiral2(board_start_index);
+    // copy to all arms
+    map_to_nBoards(board_start_index, boards_count_sun_arms, 2);
 
     calculate_step__spiral2_next();
+
+}
+
+void calculate_step_mounting_sun_lines() {
+    // Serial.print("calculate_step: ");
+
+    uint8_t board_start_index = 0;
+
+    // create animaiton in center
+    // first row (3 boards)
+    // calculate_step__sun_spiral_center3(board_start_index);
+    board_start_index += 3;
+
+    // // second row (4 boards)
+    calculate_step__line4(board_start_index, true);
+    board_start_index += 4;
+
+    // for the second half we mirrow with
+    // flip direction
+    sequencer_direction_forward = !sequencer_direction_forward;
+
+    // thirt row (4 boards)
+    calculate_step__line4(board_start_index, true);
+    board_start_index += 4;
+
+    // fourth row (3 boards)
+    // calculate_step__sun_spiral_center3(board_start_index);
+    board_start_index += 3;
+
+    // back to normal
+    sequencer_direction_forward = !sequencer_direction_forward;
+
+
+    // use spiral2 for arms
+    calculate_step__line4(board_start_index);
+    // copy to all arms
+    map_to_nBoards(board_start_index, boards_count_sun_arms, 4);
+
+    calculate_step__line4_next();
 
 }
 
@@ -1311,8 +1288,11 @@ void calculate_step() {
         case sequencer_HORIZONTAL4: {
             calculate_step_dualboard();
         } break;
-        case sequencer_SPIRALSUN: {
-            calculate_step_mounting_sun();
+        case sequencer_SUN_SPIRAL: {
+            calculate_step_mounting_sun_spiral();
+        } break;
+        case sequencer_SUN_LINES: {
+          calculate_step_mounting_sun_lines();
         } break;
     }
     if (sequencer_mode > sequencer_OFF) {
@@ -1349,13 +1329,17 @@ void map_to_allBoards() {
     }
 }
 
-void map_to_dualBoards(uint8_t board_start_index, uint8_t boards_count_local) {
+void map_to_nBoards(
+  uint8_t board_start_index,
+  uint8_t boards_count_local,
+  uint8_t boards_per_copy
+) {
     if (output_enabled) {
         // set all channels (mapping)
         for (
             size_t board_index = board_start_index;
             board_index < (board_start_index + boards_count_local);
-            board_index += 2
+            board_index += boards_per_copy
         ) {
             // Serial.print("bi: ");
             // Serial.print(board_index);
@@ -1363,7 +1347,7 @@ void map_to_dualBoards(uint8_t board_start_index, uint8_t boards_count_local) {
             // copy channels for both boards
             for (
                 size_t channel_index = 0;
-                channel_index < colorchannels_per_board*2;
+                channel_index < colorchannels_per_board*boards_per_copy;
                 channel_index++
             ) {
                 // uint8_t mapped_channel = mapping_single_board[i];
@@ -1615,9 +1599,9 @@ void button_onEvent(slight_ButtonInput *pInstance, byte bEvent) {
                     Serial.print(F("\t sequencer_mode: High Power Line\n"));
                 } break;
                 case 6 : {
-                    sequencer_mode = sequencer_SPIRALSUN;
+                    sequencer_mode = sequencer_SUN_SPIRAL;
                     sequencer_interval = 100;
-                    Serial.print(F("\t sequencer_mode: SPIRALSUN\n"));
+                    Serial.print(F("\t sequencer_mode: SUN SPIRAL\n"));
                 } break;
             }
         } break;
