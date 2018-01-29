@@ -25,6 +25,10 @@ for ease of use i use the OLA software to create the Network-SPI bridge.
 
 Second there will be 'some Application' of some form running on an power-full
 computer to generate the Data.
+Ideas:
+- [processing](https://processing.org/)
+- [openFrameworks (OF)](http://openframeworks.cc/)
+- [Pure Data (pd)](http://puredata.info/)
 
 SW is a big TODO :-)
 
