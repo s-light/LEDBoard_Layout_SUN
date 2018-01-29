@@ -1234,9 +1234,9 @@ void calculate_step_mounting_sun() {
 
 
     // use spiral2 for arms
-    // calculate_step__spiral2(board_start_index);
+    calculate_step__spiral2(board_start_index);
     // copy to all arms
-    // map_to_dualBoards(board_start_index, boards_count_sun_arms);
+    map_to_dualBoards(board_start_index, boards_count_sun_arms);
 
     calculate_step__spiral2_next();
 
