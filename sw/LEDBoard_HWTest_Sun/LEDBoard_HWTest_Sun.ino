@@ -788,7 +788,7 @@ void calculate_step__hpline() {
 
 
 
-void calculate_step__spiral2(uint16_t board_start_index = 0, bool flag_horizontal = false) {
+void calculate_step__spiral2(uint8_t board_start_index = 0, bool flag_horizontal = false) {
     // Serial.println("calculate_step__spiral: ");
 
     uint16_t ch_offset = colorchannels_per_board * board_start_index;
@@ -840,7 +840,7 @@ void calculate_step__spiral2(uint16_t board_start_index = 0, bool flag_horizonta
             // Serial.print(column);
 
             uint8_t pixel = 0;
-            uint8_t ch = 0;
+            uint16_t ch = 0;
 
             if ((column < leds_per_row) && (row < leds_per_column)) {
                 // first board
@@ -905,7 +905,6 @@ void calculate_step__spiral2(uint16_t board_start_index = 0, bool flag_horizonta
             //     values[ch + 2] = 0;
             // }
 
-            //  TODO implement trail
             // trail
             int8_t trail_step = spiral_step - sequencer_current_step;
 
@@ -1036,7 +1035,7 @@ void calculate_step__horizontal4() {
 
 
 
-void calculate_step__sun_spiral_center(uint16_t board_start_index = 0) {
+void calculate_step__sun_spiral_center(uint8_t board_start_index = 0) {
     // Serial.println("calculate_step__sun_spiral_center: ");
 
     const uint8_t column_count = leds_per_row*3;
@@ -1220,18 +1219,18 @@ void calculate_step_mounting_sun() {
     // // second row (4 boards)
     calculate_step__spiral2(board_start_index, true);
     board_start_index += 2;
-    // calculate_step__spiral2(board_start_index, true);
-    // board_start_index += 2;
-    //
-    // // thirt row (4 boards)
-    // calculate_step__spiral2(board_start_index, true);
-    // board_start_index += 2;
-    // calculate_step__spiral2(board_start_index, true);
-    // board_start_index += 2;
-    //
-    // // fourth row (3 boards)
-    // calculate_step__sun_spiral_center(board_start_index);
-    // board_start_index += 3;
+    calculate_step__spiral2(board_start_index, true);
+    board_start_index += 2;
+
+    // thirt row (4 boards)
+    calculate_step__spiral2(board_start_index, true);
+    board_start_index += 2;
+    calculate_step__spiral2(board_start_index, true);
+    board_start_index += 2;
+
+    // fourth row (3 boards)
+    calculate_step__sun_spiral_center(board_start_index);
+    board_start_index += 3;
 
 
     // use spiral2 for arms
@@ -1298,7 +1297,7 @@ void map_to_allBoards() {
     }
 }
 
-void map_to_dualBoards(uint16_t board_start_index, uint8_t boards_count_local) {
+void map_to_dualBoards(uint8_t board_start_index, uint8_t boards_count_local) {
     if (output_enabled) {
         // set all channels (mapping)
         for (
