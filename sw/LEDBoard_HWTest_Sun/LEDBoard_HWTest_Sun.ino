@@ -443,7 +443,7 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
             if (sequencer_mode == sequencer_OFF) {
                 sequencer_mode = sequencer_SPIRALSUN;
                 out.print(F("\t sequencer_mode: SPIRALSUN\n"));
-                sequencer_interval = 2000;
+                sequencer_interval = 100;
             }
             else {
                 sequencer_mode = sequencer_OFF;
