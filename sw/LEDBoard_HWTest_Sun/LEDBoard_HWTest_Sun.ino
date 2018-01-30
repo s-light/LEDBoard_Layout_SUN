@@ -348,7 +348,8 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
             out.println(F("\t 'x': tests"));
             out.println();
             // out.println(F("\t 'A': Show 'HelloWorld' "));
-            out.println(F("\t 'a': toggle sequencer"));
+            out.println(F("\t 'o': sequencer off"));
+            out.println(F("\t 'a': toggle CHANNELCHECK"));
             out.println(F("\t 'a': toggle SPIRAL"));
             out.println(F("\t 'b': toggle SPIRAL2"));
             out.println(F("\t 'B': toggle SUN SPIRAL"));
@@ -417,6 +418,10 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
         // case 'A': {
         //     out.println(F("\t Hello World! :-)"));
         // } break;
+        case 'o': {
+          out.print(F("\t sequencer_mode: OFF\n"));
+            sequencer_mode = sequencer_OFF;
+        } break;
         case 'a': {
             out.println(F("\t toggle sequencer:"));
             if (sequencer_mode == sequencer_CHANNELCHECK) {
