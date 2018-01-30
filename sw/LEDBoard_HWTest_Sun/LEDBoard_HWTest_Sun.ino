@@ -419,72 +419,72 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
         // } break;
         case 'a': {
             out.println(F("\t toggle sequencer:"));
-            if (sequencer_mode == sequencer_OFF) {
-                sequencer_mode = sequencer_CHANNELCHECK;
-                out.print(F("\t sequencer_mode: CHANNELCHECK\n"));
-            }
-            else {
+            if (sequencer_mode == sequencer_CHANNELCHECK) {
                 sequencer_mode = sequencer_OFF;
                 out.print(F("\t sequencer_mode: OFF\n"));
+            }
+            else {
+                sequencer_mode = sequencer_CHANNELCHECK;
+                out.print(F("\t sequencer_mode: CHANNELCHECK\n"));
             }
         } break;
         case 'A': {
             out.println(F("\t toggle SPIRAL:"));
-            if (sequencer_mode == sequencer_OFF) {
-                sequencer_mode = sequencer_SPIRAL;
-                out.print(F("\t sequencer_mode: SPIRAL\n"));
-            }
-            else {
+            if (sequencer_mode == sequencer_SPIRAL) {
                 sequencer_mode = sequencer_OFF;
                 out.print(F("\t sequencer_mode: OFF\n"));
+            }
+            else {
+                sequencer_mode = sequencer_SPIRAL;
+                out.print(F("\t sequencer_mode: SPIRAL\n"));
             }
         } break;
         case 'b': {
             out.println(F("\t toggle SPIRAL2:"));
-            if (sequencer_mode == sequencer_OFF) {
+            if (sequencer_mode == sequencer_SPIRAL2) {
+                sequencer_mode = sequencer_OFF;
+                out.print(F("\t sequencer_mode: OFF\n"));
+            }
+            else {
                 sequencer_mode = sequencer_SPIRAL2;
                 out.print(F("\t sequencer_mode: SPIRAL2\n"));
                 sequencer_interval = 100;
             }
-            else {
-                sequencer_mode = sequencer_OFF;
-                out.print(F("\t sequencer_mode: OFF\n"));
-            }
         } break;
         case 'B': {
             out.println(F("\t toggle SUN SPIRAL:"));
-            if (sequencer_mode == sequencer_OFF) {
+            if (sequencer_mode == sequencer_SPIRAL) {
+                sequencer_mode = sequencer_OFF;
+                out.print(F("\t sequencer_mode: OFF\n"));
+            }
+            else {
                 sequencer_mode = sequencer_SUN_SPIRAL;
                 out.print(F("\t sequencer_mode: SUN SPIRAL\n"));
                 sequencer_interval = 100;
             }
-            else {
-                sequencer_mode = sequencer_OFF;
-                out.print(F("\t sequencer_mode: OFF\n"));
-            }
         } break;
         case 'c': {
             out.println(F("\t toggle HORIZONTAL:"));
-            if (sequencer_mode == sequencer_OFF) {
+            if (sequencer_mode == sequencer_HORIZONTAL) {
+                sequencer_mode = sequencer_OFF;
+                out.print(F("\t sequencer_mode: OFF\n"));
+            }
+            else {
                 sequencer_mode = sequencer_HORIZONTAL;
                 out.print(F("\t sequencer_mode: HORIZONTAL\n"));
                 sequencer_interval = 200;
             }
-            else {
-                sequencer_mode = sequencer_OFF;
-                out.print(F("\t sequencer_mode: OFF\n"));
-            }
         } break;
         case 'C': {
             out.println(F("\t toggle SUN_LINES:"));
-            if (sequencer_mode == sequencer_OFF) {
+            if (sequencer_mode == sequencer_SUN_LINES) {
+                sequencer_mode = sequencer_OFF;
+                out.print(F("\t sequencer_mode: OFF\n"));
+            }
+            else {
                 sequencer_mode = sequencer_SUN_LINES;
                 out.print(F("\t sequencer_mode: SUN_LINES\n"));
                 sequencer_interval = 100;
-            }
-            else {
-                sequencer_mode = sequencer_OFF;
-                out.print(F("\t sequencer_mode: OFF\n"));
             }
         } break;
         case 'I': {
