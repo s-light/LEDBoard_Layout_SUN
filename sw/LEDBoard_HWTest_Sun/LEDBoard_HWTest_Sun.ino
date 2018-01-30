@@ -485,6 +485,7 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
                 sequencer_mode = sequencer_SUN_LINES;
                 out.print(F("\t sequencer_mode: SUN_LINES\n"));
                 sequencer_interval = 100;
+                sequencer_direction_forward = true;
             }
         } break;
         case 'I': {
