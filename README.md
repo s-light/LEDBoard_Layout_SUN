@@ -3,7 +3,7 @@
 # LEDBoard Layout 'Sun'
 'Sun' build with [LEDBoard 4x4 16bit](https://github.com/s-light/LEDBoard_4x4_16bit)
 
-
+![Sun](photos/P1650166.JPG)
 
 ## arduino test sketch
 have a look at [sw/LEDBoard_HWTest_Sun](sw/LEDBoard_HWTest_Sun/readme.md)
