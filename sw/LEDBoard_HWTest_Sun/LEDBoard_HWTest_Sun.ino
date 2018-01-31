@@ -263,15 +263,23 @@ const uint16_t tail_water[tail_water_count][colors_per_led] {
     {     0,     0,     0},
 };
 
-const uint8_t tail_sun_count = 6;
+const uint8_t tail_sun_count = 14;
 const uint16_t tail_sun[tail_sun_count][colors_per_led] {
     //  red, green,   blue
-    { 60000, 20000,     0},
-    { 20000,  7000,     0},
-    {  6000,  2000,     0},
-    {  3000,  1000,     0},
-    {   600,   200,     0},
-    {    60,    20,     0},
+    { 60000, 18000,     0},
+    { 30000,  9000,     0},
+    { 10000,  3000,     0},
+    {  6000,  1800,     0},
+    {  3000,   900,     0},
+    {  1000,   300,     0},
+    {  1000,   300,     0},
+    {   600,   180,     0},
+    {   600,   180,     0},
+    {   600,   180,     0},
+    {   600,   180,     0},
+    {   600,   180,     0},
+    {   600,   180,     0},
+    {   600,   180,     0},
 };
 
 
@@ -368,7 +376,8 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
             out.println(F("\t 'b': toggle SPIRAL2"));
             out.println(F("\t 'B': toggle SUN SPIRAL"));
             out.println(F("\t 'c': toggle HORIZONTAL"));
-            out.println(F("\t 'C': toggle SUN LINES"));
+            out.println(F("\t 'C': toggle SUN WAVE blue"));
+            out.println(F("\t 'd': toggle SUN WAVE orange"));
             out.println();
             out.print(F("\t 'I': set sequencer interval 'i65535' ("));
             out.print(sequencer_interval);
@@ -742,12 +751,12 @@ void calculate_step__effectmap(
                 tlc.setChannel(ch + 1, tail[tail_step][1]);
                 tlc.setChannel(ch + 2, tail[tail_step][2]);
             }
-            else {
-                // set pixel to low
-                tlc.setChannel(ch + 0, 0);
-                tlc.setChannel(ch + 1, 0);
-                tlc.setChannel(ch + 2, 0);
-            }
+            // else {
+            //     // set pixel to low
+            //     tlc.setChannel(ch + 0, 0);
+            //     tlc.setChannel(ch + 1, 0);
+            //     tlc.setChannel(ch + 2, 0);
+            // }
 
             // Serial.println();
 
@@ -1400,7 +1409,7 @@ void calculate_step_mounting_sun_waves_orange() {
     // copy to all arms
     map_to_nBoards(board_start_index, boards_count_sun_arms, 4);
 
-    calculate_step__wave4_next();
+    calculate_step__wave4_next(tail_sun_count);
 
 }
 
@@ -1772,39 +1781,39 @@ void button_onEvent(slight_ButtonInput *pInstance, byte bEvent) {
         } break;
         case slight_ButtonInput::event_ClickDouble : {
             // Serial.println(F("click double"));
-            sequencer_mode = sequencer_SUN_WAVE_BLUE;
-            sequencer_interval = 100;
-            Serial.print(F("\t sequencer_mode: SUN_WAVE\n"));
-        } break;
-        case slight_ButtonInput::event_ClickTriple : {
             sequencer_mode = sequencer_SPIRAL;
             sequencer_interval = 100;
             Serial.print(F("\t sequencer_mode: SPIRAL\n"));
+        } break;
+        case slight_ButtonInput::event_ClickTriple : {
             // Serial.println(F("click triple"));
+            sequencer_mode = sequencer_SUN_SPIRAL;
+            sequencer_interval = 100;
+            Serial.print(F("\t sequencer_mode: SUN SPIRAL\n"));
         } break;
         case slight_ButtonInput::event_ClickMulti : {
             Serial.print(F("click count: "));
             Serial.println((*pInstance).getClickCount());
             switch ((*pInstance).getClickCount()) {
                 case 4 : {
-                    sequencer_mode = sequencer_SPIRAL2;
-                    sequencer_interval = 50;
-                    Serial.print(F("\t sequencer_mode: SPIRAL 2boards\n"));
+                  sequencer_mode = sequencer_SUN_WAVE_BLUE;
+                  sequencer_interval = 100;
+                  Serial.print(F("\t sequencer_mode: sequencer_SUN_WAVE_BLUE\n"));
                 } break;
                 case 5 : {
+                    sequencer_mode = sequencer_SUN_WAVE_ORANGE;
+                    sequencer_interval = 50;
+                    Serial.print(F("\t sequencer_mode: sequencer_SUN_WAVE_ORANGE\n"));
+                } break;
+                case 6 : {
                     sequencer_mode = sequencer_HPLINE;
                     sequencer_interval = 50;
                     Serial.print(F("\t sequencer_mode: High Power Line\n"));
                 } break;
-                case 6 : {
-                    sequencer_mode = sequencer_SUN_SPIRAL;
-                    sequencer_interval = 100;
-                    Serial.print(F("\t sequencer_mode: SUN SPIRAL\n"));
-                } break;
                 case 7 : {
-                    sequencer_mode = sequencer_SUN_WAVE_ORANGE;
-                    sequencer_interval = 100;
-                    Serial.print(F("\t sequencer_mode: SUN_WAVE2\n"));
+                    sequencer_mode = sequencer_SPIRAL2;
+                    sequencer_interval = 50;
+                    Serial.print(F("\t sequencer_mode: SPIRAL 2boards\n"));
                 } break;
             }
         } break;
