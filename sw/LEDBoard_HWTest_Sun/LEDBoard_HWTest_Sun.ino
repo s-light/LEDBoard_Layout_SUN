@@ -218,7 +218,8 @@ enum sequencer_modes {
     sequencer_SPIRAL2,
     sequencer_SUN_SPIRAL,
     sequencer_HPLINE,
-    sequencer_SUN_LINES,
+    sequencer_SUN_WAVE_BLUE,
+    sequencer_SUN_WAVE_ORANGE,
 };
 
 uint8_t sequencer_mode = sequencer_OFF;
@@ -236,7 +237,7 @@ uint16_t value_high = 1000;
 
 
 
-const uint8_t tail_orange_count = 8;
+const uint8_t tail_orange_count = 9;
 const uint16_t tail_orange[tail_orange_count][colors_per_led] {
     //  red, green,   blue
     { 55000, 20000,      0},
@@ -247,9 +248,10 @@ const uint16_t tail_orange[tail_orange_count][colors_per_led] {
     {   500,   200,      0},
     {    50,    20,      0},
     {     5,     2,      0},
+    {     0,     0,     0},
 };
 
-const uint8_t tail_water_count = 6;
+const uint8_t tail_water_count = 7;
 const uint16_t tail_water[tail_water_count][colors_per_led] {
     //  red, green,   blue
     {     0, 20000, 60000},
@@ -258,6 +260,18 @@ const uint16_t tail_water[tail_water_count][colors_per_led] {
     {     0,  1000,  3000},
     {     0,   200,   600},
     {     0,    20,    60},
+    {     0,     0,     0},
+};
+
+const uint8_t tail_sun_count = 6;
+const uint16_t tail_sun[tail_sun_count][colors_per_led] {
+    //  red, green,   blue
+    { 60000, 20000,     0},
+    { 20000,  7000,     0},
+    {  6000,  2000,     0},
+    {  3000,  1000,     0},
+    {   600,   200,     0},
+    {    60,    20,     0},
 };
 
 
@@ -481,14 +495,27 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
             }
         } break;
         case 'C': {
-            out.println(F("\t toggle SUN_LINES:"));
-            if (sequencer_mode == sequencer_SUN_LINES) {
+            out.println(F("\t toggle SUN_WAVE:"));
+            if (sequencer_mode == sequencer_SUN_WAVE_BLUE) {
                 sequencer_mode = sequencer_OFF;
                 out.print(F("\t sequencer_mode: OFF\n"));
             }
             else {
-                sequencer_mode = sequencer_SUN_LINES;
-                out.print(F("\t sequencer_mode: SUN_LINES\n"));
+                sequencer_mode = sequencer_SUN_WAVE_BLUE;
+                out.print(F("\t sequencer_mode: SUN_WAVE\n"));
+                sequencer_interval = 100;
+                sequencer_direction_forward = true;
+            }
+        } break;
+        case 'd': {
+            out.println(F("\t toggle SUN_WAVE2:"));
+            if (sequencer_mode == sequencer_SUN_WAVE_ORANGE) {
+                sequencer_mode = sequencer_OFF;
+                out.print(F("\t sequencer_mode: OFF\n"));
+            }
+            else {
+                sequencer_mode = sequencer_SUN_WAVE_ORANGE;
+                out.print(F("\t sequencer_mode: SUN_WAVE2\n"));
                 sequencer_interval = 100;
                 sequencer_direction_forward = true;
             }
@@ -1067,7 +1094,12 @@ void calculate_step__spiral2_next() {
 }
 
 
-void calculate_step__line4(uint8_t board_start_index = 0, bool flag_horizontal = false) {
+void calculate_step__wave4(
+    uint8_t board_start_index = 0,
+    bool flag_horizontal = false,
+    uint16_t tail[][3] = tail_water,
+    uint8_t tail_count = tail_water_count
+) {
 
     const uint8_t row_count_vertical = leds_per_column*4;
     const uint8_t column_count_vertical = leds_per_row;
@@ -1109,8 +1141,8 @@ void calculate_step__line4(uint8_t board_start_index = 0, bool flag_horizontal =
             row_count_horizontal,
             column_count_horizontal,
             board_start_index,
-            tail_water,
-            tail_water_count
+            tail,
+            tail_count
         );
     }
     else {
@@ -1119,13 +1151,17 @@ void calculate_step__line4(uint8_t board_start_index = 0, bool flag_horizontal =
             row_count_vertical,
             column_count_vertical,
             board_start_index,
-            tail_water,
-            tail_water_count
+            tail,
+            tail_count
         );
     }
 }
 
-void calculate_step__line_center2x4(uint8_t board_start_index = 0) {
+void calculate_step__wave_center2x4(
+    uint8_t board_start_index = 0,
+    uint16_t tail[][3] = tail_water,
+    uint8_t tail_count = tail_water_count
+) {
     // const uint8_t row_count = leds_per_column;
     // const uint8_t column_count = leds_per_row*8;
     // const uint8_t effect_order[row_count][column_count] {
@@ -1152,12 +1188,17 @@ void calculate_step__line_center2x4(uint8_t board_start_index = 0) {
         row_count,
         column_count,
         board_start_index,
-        tail_water,
-        tail_water_count
+        tail,
+        tail_count
     );
 }
 
-void calculate_step__line_center3(uint8_t board_start_index = 0, bool flag_mirror = false) {
+void calculate_step__wave_center3(
+    uint8_t board_start_index = 0,
+    bool flag_mirror = false,
+    uint16_t tail[][3] = tail_water,
+    uint8_t tail_count = tail_water_count
+) {
     const uint8_t row_count_horizontal = leds_per_column;
     const uint8_t column_count_horizontal = leds_per_row*3;
     const uint8_t effect_order_horizontal_mirror[row_count_horizontal][column_count_horizontal] {
@@ -1179,8 +1220,8 @@ void calculate_step__line_center3(uint8_t board_start_index = 0, bool flag_mirro
             row_count_horizontal,
             column_count_horizontal,
             board_start_index,
-            tail_water,
-            tail_water_count
+            tail,
+            tail_count
         );
     }
     else {
@@ -1189,13 +1230,13 @@ void calculate_step__line_center3(uint8_t board_start_index = 0, bool flag_mirro
             row_count_horizontal,
             column_count_horizontal,
             board_start_index,
-            tail_water,
-            tail_water_count
+            tail,
+            tail_count
         );
     }
 }
 
-void calculate_step__line4_next() {
+void calculate_step__wave4_next(uint8_t tail_count = tail_water_count) {
     // prepare next step
     // Serial.print("sequencer_current_step: ");
     // Serial.println(sequencer_current_step);
@@ -1206,12 +1247,12 @@ void calculate_step__line4_next() {
         sequencer_current_step = sequencer_current_step + 1;
     }
     else {
-        sequencer_current_step = (tail_water_count*-1)+1;
+        sequencer_current_step = (tail_count*-1)+1;
         // Serial.println("line4_next: start new itteration");
     }
     // backwards
     // sequencer_direction_forward = false;
-    // if (sequencer_current_step <= (tail_water_count*-1) ) {
+    // if (sequencer_current_step <= (tail_count*-1) ) {
     //     sequencer_current_step = effect_step_count;
     //     Serial.println("line4_next: start new itteration");
     // }
@@ -1233,7 +1274,7 @@ void calculate_step__line4_next() {
     // }
     // else {
     //     // backwards
-    //     if (sequencer_current_step <= (tail_water_count*-1) ) {
+    //     if (sequencer_current_step <= (tail_count*-1) ) {
     //         sequencer_current_step = sequencer_current_step + 1;
     //         sequencer_direction_forward = true;
     //         // Serial.println("direction switch to forward");
@@ -1286,32 +1327,80 @@ void calculate_step_mounting_sun_spiral() {
 
 }
 
-void calculate_step_mounting_sun_lines() {
+void calculate_step_mounting_sun_waves_blue() {
     // Serial.print("calculate_step: ");
 
     uint8_t board_start_index = 0;
 
     // create animaiton in center
     // first row (3 boards)
-    calculate_step__line_center3(board_start_index, false);
+    calculate_step__wave_center3(board_start_index, false);
     board_start_index += 3;
 
     // second row (4 boards)
     // thirt row (4 boards)
-    calculate_step__line_center2x4(board_start_index);
+    calculate_step__wave_center2x4(board_start_index);
     board_start_index += 4;
     board_start_index += 4;
 
     // fourth row (3 boards)
-    calculate_step__line_center3(board_start_index, true);
+    calculate_step__wave_center3(board_start_index, true);
     board_start_index += 3;
 
     // use spiral2 for arms
-    calculate_step__line4(board_start_index);
+    calculate_step__wave4(board_start_index);
     // copy to all arms
     map_to_nBoards(board_start_index, boards_count_sun_arms, 4);
 
-    calculate_step__line4_next();
+    calculate_step__wave4_next();
+
+}
+
+void calculate_step_mounting_sun_waves_orange() {
+    // Serial.print("calculate_step: ");
+
+    uint8_t board_start_index = 0;
+
+    // create animaiton in center
+    // first row (3 boards)
+    calculate_step__wave_center3(
+        board_start_index,
+        false,
+        tail_sun,
+        tail_sun_count
+    );
+    board_start_index += 3;
+
+    // second row (4 boards)
+    // thirt row (4 boards)
+    calculate_step__wave_center2x4(
+        board_start_index,
+        tail_sun,
+        tail_sun_count
+    );
+    board_start_index += 4;
+    board_start_index += 4;
+
+    // fourth row (3 boards)
+    calculate_step__wave_center3(
+        board_start_index,
+        true,
+        tail_sun,
+        tail_sun_count
+    );
+    board_start_index += 3;
+
+    // use spiral2 for arms
+    calculate_step__wave4(
+        board_start_index,
+        false,
+        tail_sun,
+        tail_sun_count
+    );
+    // copy to all arms
+    map_to_nBoards(board_start_index, boards_count_sun_arms, 4);
+
+    calculate_step__wave4_next();
 
 }
 
@@ -1370,7 +1459,7 @@ void calculate_step_dualboard() {
             calculate_step__spiral2_next();
         } break;
         case sequencer_HORIZONTAL4: {
-            calculate_step__line4();
+            calculate_step__wave4();
         } break;
     }
     // now map to all tlc chips and write theme to output
@@ -1397,8 +1486,11 @@ void calculate_step() {
         case sequencer_SUN_SPIRAL: {
             calculate_step_mounting_sun_spiral();
         } break;
-        case sequencer_SUN_LINES: {
-          calculate_step_mounting_sun_lines();
+        case sequencer_SUN_WAVE_BLUE: {
+          calculate_step_mounting_sun_waves_blue();
+        } break;
+        case sequencer_SUN_WAVE_ORANGE: {
+          calculate_step_mounting_sun_waves_orange();
         } break;
     }
     if (sequencer_mode > sequencer_OFF) {
@@ -1680,9 +1772,9 @@ void button_onEvent(slight_ButtonInput *pInstance, byte bEvent) {
         } break;
         case slight_ButtonInput::event_ClickDouble : {
             // Serial.println(F("click double"));
-            sequencer_mode = sequencer_HORIZONTAL;
-            sequencer_interval = 1000;
-            Serial.print(F("\t sequencer_mode: HORIZONTAL\n"));
+            sequencer_mode = sequencer_SUN_WAVE_BLUE;
+            sequencer_interval = 100;
+            Serial.print(F("\t sequencer_mode: SUN_WAVE\n"));
         } break;
         case slight_ButtonInput::event_ClickTriple : {
             sequencer_mode = sequencer_SPIRAL;
@@ -1708,6 +1800,11 @@ void button_onEvent(slight_ButtonInput *pInstance, byte bEvent) {
                     sequencer_mode = sequencer_SUN_SPIRAL;
                     sequencer_interval = 100;
                     Serial.print(F("\t sequencer_mode: SUN SPIRAL\n"));
+                } break;
+                case 7 : {
+                    sequencer_mode = sequencer_SUN_WAVE_ORANGE;
+                    sequencer_interval = 100;
+                    Serial.print(F("\t sequencer_mode: SUN_WAVE2\n"));
                 } break;
             }
         } break;
