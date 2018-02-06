@@ -31,11 +31,28 @@
 
 namespace LEDBoard {
 
-    Tlc59711 tlc(tlc_chips);
-    // const uint8_t clk_pin = 13;
-    // const uint8_t data_pin = 12;
-    // Tlc59711 tlc(tlc_chips, clk_pin, data_pin);
+Tlc59711 tlc(tlc_chips);
+// const uint8_t clk_pin = 13;
+// const uint8_t data_pin = 12;
+// Tlc59711 tlc(tlc_chips, clk_pin, data_pin);
 
-    bool output_enabled = true;
+bool output_enabled = true;
+
+
+void setup(const Print &out) {
+    out.println(F("setup LEDBoards:"));
+
+    out.println(F("\t init tlc lib"));
+    LEDBoard::tlc.beginFast();
+    out.println(F("\t start with leds off"));
+    LEDBoard::tlc.setRGB();
+    LEDBoard::tlc.write();
+    out.println(F("\t set leds to 0, 0, 1"));
+    LEDBoard::tlc.setRGB(0, 0, 1);
+    LEDBoard::tlc.write();
+
+    out.println(F("\t finished."));
+}
+
 
 }  // namespace LEDBoard

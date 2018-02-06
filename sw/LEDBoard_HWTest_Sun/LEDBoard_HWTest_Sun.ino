@@ -32,16 +32,18 @@
             License: MIT
             Copyright (c) 2016 Ulrich Stern
             https://github.com/ulrichstern/Tlc59711
+        ~ DMXSerial
+            Copyright (c) 2005-2012 by Matthias Hertel,
+            http://www.mathertel.de
+            license:
+                See http://www.mathertel.de/License.aspx
+                Software License Agreement (BSD License)
 
     written by stefan krueger (s-light),
         github@s-light.eu, http://s-light.eu, https://github.com/s-light/
 
     changelog / history
         check git commit messages
-
-    TO DO:
-        ~ xx
-
 
 ******************************************************************************/
 /******************************************************************************
@@ -137,8 +139,13 @@ void sketchinfo_print(Print &out) {
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Debug Output
 
+Print &DebugOut = Serial;
+Stream &DebugIn = Serial;
+// attention: in setup_DebugOut 'Serial' is hardcoded used for initialisation
+
+
 boolean infoled_state = 0;
-const byte infoled_pin = 1;
+const byte infoled_pin = 13;
 
 unsigned long debugOut_LiveSign_TimeStamp_LastAction = 0;
 const uint16_t debugOut_LiveSign_UpdateInterval = 1000; //ms
@@ -151,19 +158,6 @@ boolean debugOut_LiveSign_LED_Enabled = 1;
 
 // slight_DebugMenu(Stream &in_ref, Print &out_ref, uint8_t input_length_new);
 slight_DebugMenu myDebugMenu(Serial, Serial, 15);
-
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// LEDBoard
-// see LEDBoard.h
-
-
-
-
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// sequencer
-// see effe.h
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -214,7 +208,7 @@ uint32_t lowbat_interval = 1000;
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// debug things
+// DebugOut
 
 // freeRam found at
 // http://forum.arduino.cc/index.php?topic=183790.msg1362282#msg1362282
@@ -225,10 +219,80 @@ int freeRam () {
     return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
 }
 
+void setup_DebugOut(const Print &out) {
+    // for ATmega32U4 devices:
+    #if defined (__AVR_ATmega32U4__)
+        // wait for arduino IDE to release all serial ports after upload.
+        // delay(2000);
+    #endif
+
+    Serial.begin(115200);
+
+    // for ATmega32U4 devices:
+    #if defined (__AVR_ATmega32U4__)
+        // Wait for Serial Connection to be Opend from Host or
+        // timeout after 6second
+        uint32_t timeStamp_Start = millis();
+        while( (! Serial) && ( (millis() - timeStamp_Start) < 1000 ) ) {
+            // nothing to do
+        }
+    #endif
+
+
+    out.println();
+
+    out.print(F("# Free RAM = "));
+    out.println(freeRam());
+}
+
+void handle_debugout(const Print &out) {
+    if (
+        (millis() - debugOut_LiveSign_TimeStamp_LastAction) >
+        debugOut_LiveSign_UpdateInterval
+    ) {
+        debugOut_LiveSign_TimeStamp_LastAction = millis();
+
+        if ( debugOut_LiveSign_Serial_Enabled ) {
+            out.print(millis());
+            out.print(F("ms;"));
+            out.print(F("  free RAM = "));
+            out.print(freeRam());
+            // out.print(F("; bat votlage: "));
+            // out.print(bat_voltage/100.0);
+            // out.print(F("V"));
+            out.println();
+        }
+
+        if ( debugOut_LiveSign_LED_Enabled ) {
+            infoled_state = ! infoled_state;
+            if (infoled_state) {
+                //set LED to HIGH
+                digitalWrite(infoled_pin, HIGH);
+            } else {
+                //set LED to LOW
+                digitalWrite(infoled_pin, LOW);
+            }
+        }
+
+    }
+}
+
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Menu System
+
+void setup_DebugMenu(Print &out) {
+    out.print(F("# Free RAM = "));
+    out.println(freeRam());
+
+    out.println(F("setup DebugMenu:")); {
+        // myDebugMenu.set_user_EOC_char(';');
+        myDebugMenu.set_callback(handleMenu_Main);
+        myDebugMenu.begin();
+    }
+    out.println(F("\t finished."));
+}
 
 // Main Menu
 void handleMenu_Main(slight_DebugMenu *pInstance) {
@@ -497,30 +561,6 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
     // end Command Parser
 }
 
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// LEDBoard
-
-
-void setup_Boards(Print &out) {
-    out.println(F("setup LEDBoards:"));
-
-    out.println(F("\t init tlc lib"));
-    LEDBoard::tlc.beginFast();
-    out.println(F("\t start with leds off"));
-    LEDBoard::tlc.setRGB();
-    LEDBoard::tlc.write();
-    out.println(F("\t set leds to 0, 0, 1"));
-    LEDBoard::tlc.setRGB(0, 0, 1);
-    LEDBoard::tlc.write();
-
-    out.println(F("\t finished."));
-}
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Sequencer
-// see effe.cpp
-
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // FaderLin
 
@@ -640,6 +680,31 @@ void myCallback_onEvent(slight_FaderLin *pInstance, byte event) {
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // button callbacks
+
+void setup_buttons(Print &out) {
+    out.print(F("# Free RAM = "));
+    out.println(freeRam());
+
+    out.println(F("setup button:")); {
+        out.println(F("\t set button pin"));
+        pinMode(button_pin, INPUT_PULLUP);
+        out.println(F("\t button begin"));
+        button.begin();
+        // for (size_t index = 0; index < buttons_COUNT; index++) {
+        //     pinMode(buttons[index].getPin(), INPUT_PULLUP);
+        //     buttons[index].begin();
+        // }
+    }
+    out.println(F("\t finished."));
+}
+
+void buttons_update() {
+    button.update();
+    // for (size_t index = 0; index < buttons_COUNT; index++) {
+    //     buttons[index].update();
+    // }
+}
+
 
 boolean button_getInput(uint8_t id, uint8_t pin) {
     // read input invert reading - button closes to GND.
@@ -818,8 +883,6 @@ void lowbat_check() {
 // other things..
 
 
-
-
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // setup
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -827,99 +890,38 @@ void setup() {
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // initialise PINs
 
-        //LiveSign
-        pinMode(infoled_pin, OUTPUT);
-        digitalWrite(infoled_pin, HIGH);
+    //LiveSign
+    pinMode(infoled_pin, OUTPUT);
+    digitalWrite(infoled_pin, HIGH);
 
-        pinMode(lowbat_warning_pin, OUTPUT);
-        digitalWrite(lowbat_warning_pin, HIGH);
+    pinMode(lowbat_warning_pin, OUTPUT);
+    digitalWrite(lowbat_warning_pin, HIGH);
 
-        // as of arduino 1.0.1 you can use INPUT_PULLUP
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // initialise serial
-
-        // for ATmega32U4 devices:
-        #if defined (__AVR_ATmega32U4__)
-            // wait for arduino IDE to release all serial ports after upload.
-            // delay(2000);
-        #endif
-
-        Serial.begin(115200);
-
-        // for ATmega32U4 devices:
-        #if defined (__AVR_ATmega32U4__)
-            // Wait for Serial Connection to be Opend from Host or
-            // timeout after 6second
-            uint32_t timeStamp_Start = millis();
-            while( (! Serial) && ( (millis() - timeStamp_Start) < 1000 ) ) {
-                // nothing to do
-            }
-        #endif
-
-        Print &out = Serial;
-        out.println();
-
-        out.print(F("# Free RAM = "));
-        out.println(freeRam());
+    // as of arduino 1.0.1 you can use INPUT_PULLUP
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // print welcome
 
-        sketchinfo_print(out);
+    setup_DebugOut(DebugOut);
 
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // setup LEDBoard
+    setup_DebugMenu(DebugOut);
 
-        setup_Boards(out);
+    sketchinfo_print(DebugOut);
 
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // setup Fader
+    setup_buttons(DebugOut);
 
-    out.print(F("# Free RAM = "));
-    out.println(freeRam());
+    DebugOut.print(F("# Free RAM = "));
+    DebugOut.println(freeRam());
+    setup_myFaderRGB(DebugOut);
 
-    setup_myFaderRGB(out);
+    // dmx_handling::setup(DebugOut);
 
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // setup button
-
-    out.print(F("# Free RAM = "));
-    out.println(freeRam());
-
-    out.println(F("setup button:")); {
-        out.println(F("\t set button pin"));
-        pinMode(button_pin, INPUT_PULLUP);
-        out.println(F("\t button begin"));
-        button.begin();
-    }
-    out.println(F("\t finished."));
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // setup XXX1
-
-        // out.print(F("# Free RAM = "));
-        // out.println(freeRam());
-        //
-        // out.println(F("setup XXX1:")); {
-        //
-        //     out.println(F("\t sub action"));
-        // }
-        // out.println(F("\t finished."));
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // show serial commands
-
-        // myDebugMenu.set_user_EOC_char(';');
-        myDebugMenu.set_callback(handleMenu_Main);
-        myDebugMenu.begin();
+    LEDBoard::setup(DebugOut);
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // go
+    DebugOut.println(F("Loop:"));
 
-        out.println(F("Loop:"));
-
-} /** setup **/
+}
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // main loop
@@ -927,60 +929,20 @@ void setup() {
 void loop() {
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // menu input
-        myDebugMenu.update();
+    myDebugMenu.update();
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // update sub parts
+    buttons_update();
+    myFaderRGB.update();
 
-        myFaderRGB.update();
-        button.update();
+    // lowbat_check();
 
-        // lowbat_check();
+    effect_engine::update();
+    // dmx_handling::setup(DebugOut);
 
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // timed things
-
-        effect_engine::update();
-
-
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // debug output
-
-        if (
-            (millis() - debugOut_LiveSign_TimeStamp_LastAction) >
-            debugOut_LiveSign_UpdateInterval
-        ) {
-            debugOut_LiveSign_TimeStamp_LastAction = millis();
-
-            if ( debugOut_LiveSign_Serial_Enabled ) {
-                Serial.print(millis());
-                Serial.print(F("ms;"));
-                Serial.print(F("  free RAM = "));
-                Serial.print(freeRam());
-                Serial.print(F("; bat votlage: "));
-                Serial.print(bat_voltage/100.0);
-                Serial.print(F("V"));
-                Serial.println();
-            }
-
-            if ( debugOut_LiveSign_LED_Enabled ) {
-                infoled_state = ! infoled_state;
-                if (infoled_state) {
-                    //set LED to HIGH
-                    digitalWrite(infoled_pin, HIGH);
-                } else {
-                    //set LED to LOW
-                    digitalWrite(infoled_pin, LOW);
-                }
-            }
-
-        }
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // other things
-
-} /** loop **/
+    handle_debugout(DebugOut);
+}
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // THE END

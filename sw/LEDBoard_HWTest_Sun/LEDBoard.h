@@ -84,6 +84,9 @@ namespace LEDBoard {
     // Tlc59711 tlc(tlc_chips, clk_pin, data_pin);
 
     extern bool output_enabled;
+
+    void setup(const Print &out);
+
 }  // namespace LEDBoard
 
 #endif  // LEDBOARD_H_
