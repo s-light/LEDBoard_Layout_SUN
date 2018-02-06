@@ -43,28 +43,7 @@ int16_t values[values_count];
 
 
 
-
-// private functions
-void handle_new_values() {
-    // for (size_t i = 0; i < values_count; i = i + 2) {
-    //     if (bitRead(values_dirty, i)) {
-    //         // clear
-    //         bitClear(values_dirty, i);
-    //         // handle
-    //     }
-    // }
-    if (effect_control) {
-        if (bitRead(values_dirty, ch_a_x)) {
-            // clear
-            bitClear(values_dirty, ch_a_x);
-            // handle
-            effect_engine::sequencer_interval = map(
-                constrain(values[ch_a_x], -15000, 15000),
-                -15000, 15000,
-                0, 2000);
-        }
-    }
-}
+void handle_new_values();
 
 size_t chname2chindex(channel_names name) {
     return (name*2);
@@ -171,5 +150,26 @@ void update() {
     // uiDMXValue_Pan  = DMXSerial.read(12);
 }
 
+// private functions
+void handle_new_values() {
+    // for (size_t i = 0; i < values_count; i = i + 2) {
+    //     if (bitRead(values_dirty, i)) {
+    //         // clear
+    //         bitClear(values_dirty, i);
+    //         // handle
+    //     }
+    // }
+    if (effect_control) {
+        if (bitRead(values_dirty, ch_a_y)) {
+            // clear
+            bitClear(values_dirty, ch_a_y);
+            // handle
+            effect_engine::sequencer_interval = map(
+                constrain(values[ch_a_y], -15000, 15000),
+                -15000, 15000,
+                0, 2000);
+        }
+    }
+}
 
 }  // namespace dmx_handling
