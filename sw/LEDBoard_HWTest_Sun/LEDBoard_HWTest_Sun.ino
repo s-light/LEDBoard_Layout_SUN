@@ -84,6 +84,7 @@
 
 #include "LEDBoard.h"
 #include "effect_engine.h"
+#include "dmx_handling.h"
 
 // create alias for namespace
 namespace effe = effect_engine;
@@ -145,7 +146,7 @@ Stream &DebugIn = Serial;
 
 
 boolean infoled_state = 0;
-const byte infoled_pin = 13;
+const byte infoled_pin = 1;
 
 unsigned long debugOut_LiveSign_TimeStamp_LastAction = 0;
 const uint16_t debugOut_LiveSign_UpdateInterval = 1000; //ms
@@ -909,13 +910,14 @@ void setup() {
 
     setup_buttons(DebugOut);
 
+    LEDBoard::setup(DebugOut);
+
     DebugOut.print(F("# Free RAM = "));
     DebugOut.println(freeRam());
     setup_myFaderRGB(DebugOut);
 
-    // dmx_handling::setup(DebugOut);
+    dmx_handling::setup(DebugOut);
 
-    LEDBoard::setup(DebugOut);
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // go
@@ -939,7 +941,7 @@ void loop() {
     // lowbat_check();
 
     effect_engine::update();
-    // dmx_handling::setup(DebugOut);
+    dmx_handling::update();
 
     handle_debugout(DebugOut);
 }
