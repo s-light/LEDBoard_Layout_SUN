@@ -34,20 +34,37 @@
 
 #include <DMXSerial.h>
 
+#include "effect_engine.h"
+
 namespace dmx_handling {
 const uint8_t dmx_pin_direction = 15;
 const uint8_t dmx_pin_valid_led = 13;
 
-// 3x16bit + 3x16bit + 1x16bit + 1x16bit + 2spare
-const uint16_t dmx_maxchannel_count = (3*2)+(3*2)+(1*2)+(1*2)+2;
-
 // timeout in milliseconds
 const uint32_t dmx_valid_timeout = 1000;
 
+enum channel_names {
+    ch_a_x,
+    ch_a_y,
+    ch_a_z,
+    ch_m_x,
+    ch_m_y,
+    ch_m_z,
+    ch_heading,
+    ch_temp,
+};
+const size_t values_count = 8;
+extern size_t values_dirty;
+extern int16_t values[];
+
+const uint16_t dmx_maxchannel_count = values_count*2;
+
 extern bool dmx_valid;
 extern uint16_t dmx_start_channel;
-extern uint8_t dmx_value;
-// uint8_t dmx_values_old[] = {0, 0, 0, 0};
+extern bool effect_control;
+
+size_t chname2chindex(channel_names name);
+void print_values(Print &out);
 
 void setup(Print &out);
 void update();

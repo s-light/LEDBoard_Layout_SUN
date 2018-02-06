@@ -33,7 +33,61 @@ namespace dmx_handling {
 
 bool dmx_valid = false;
 uint16_t dmx_start_channel = 1;
-uint8_t dmx_value = 0;
+bool effect_control = false;
+
+
+// const size_t values_count = dmx_maxchannel_count / (int16_t);
+// const size_t values_count = 8;
+size_t values_dirty = 0b00000000;
+int16_t values[values_count];
+
+
+
+
+// private functions
+void handle_new_values() {
+    // for (size_t i = 0; i < values_count; i = i + 2) {
+    //     if (bitRead(values_dirty, i)) {
+    //         // clear
+    //         bitClear(values_dirty, i);
+    //         // handle
+    //     }
+    // }
+    if (effect_control) {
+        if (bitRead(values_dirty, ch_a_x)) {
+            // clear
+            bitClear(values_dirty, ch_a_x);
+            // handle
+            effect_engine::sequencer_interval = map(
+                constrain(values[ch_a_x], -15000, 15000),
+                -15000, 15000,
+                0, 2000);
+        }
+    }
+}
+
+size_t chname2chindex(channel_names name) {
+    return (name*2);
+}
+
+
+void print_values(Print &out) {
+    char line[100];
+    snprintf(
+        line,
+        sizeof(line),
+        "A: %6d %6d %6d M: %6d %6d %6d H: %6d T: %6d",
+        values[ch_a_x],
+        values[ch_a_y],
+        values[ch_a_z],
+        values[ch_m_x],
+        values[ch_m_y],
+        values[ch_m_z],
+        values[ch_heading],
+        values[ch_temp]);
+    out.println(line);
+}
+
 
 
 void setup(Print &out) {
@@ -91,29 +145,23 @@ void update() {
         // }
 
         // check if values are new
-        // bool flag_new = false;
-        // for (size_t i = 0; i < sizeof(dmx_values_old); i++) {
-        //     uint8_t value_new = DMXSerial.read(dmx_start_channel + i);
-        //     if (dmx_values_old[i] != value_new) {
-        //         dmx_values_old[i] = value_new;
-        //         flag_new = true;
-        //     }
-        // }
-        // if (flag_new) {
-        //     print_DMXValues(lcd);
-        // }
-
-        // uint8_t dmx_value_new = DMXSerial.read(dmx_start_channel);
-        // set_value(dmx_value_new);
+        for (size_t i = 0; i < values_count; i++) {
+            size_t ch = chname2chindex(channel_names(i));
+            uint16_t value_new = 0;
+            value_new |= DMXSerial.read(dmx_start_channel + ch + 0) << 8;
+            value_new |= DMXSerial.read(dmx_start_channel + ch + 1);
+            if (values[i] != int16_t(value_new)) {
+                values[i] = int16_t(value_new);
+                bitSet(values_dirty, i);
+            } else {
+                bitClear(values_dirty, i);
+            }
+        }
+        if (values_dirty) {
+            handle_new_values();
+        }
     } else {
         digitalWrite(dmx_pin_valid_led, HIGH);
-        // set_value(
-        //     map(
-        //         analogRead(analog_pin),
-        //          0, 1023,
-        //          0, 255
-        //     )
-        // );
     }
 
     // combine 16bit value

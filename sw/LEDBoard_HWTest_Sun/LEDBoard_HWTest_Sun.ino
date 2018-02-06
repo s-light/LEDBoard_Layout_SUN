@@ -154,23 +154,16 @@ const uint16_t debugOut_LiveSign_UpdateInterval = 1000; //ms
 boolean debugOut_LiveSign_Serial_Enabled = 0;
 boolean debugOut_LiveSign_LED_Enabled = 1;
 
+unsigned long debugOut_dmx_TimeStamp_LastAction = 0;
+const uint16_t debugOut_dmx_UpdateInterval = 500; //ms
+
+boolean debugOut_dmx_Enabled = 0;
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Menu
 
 // slight_DebugMenu(Stream &in_ref, Print &out_ref, uint8_t input_length_new);
 slight_DebugMenu myDebugMenu(Serial, Serial, 15);
-
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// FaderLin
-
-const uint8_t myFaderRGB__channel_count = LEDBoard::colors_per_led;
-slight_FaderLin myFaderRGB(
-    0, // byte cbID_New
-    myFaderRGB__channel_count, // byte cbChannelCount_New
-    myFaderRGB_callback_OutputChanged, // tCbfuncValuesChanged cbfuncValuesChanged_New
-    myCallback_onEvent // tCbfuncStateChanged cbfuncStateChanged_New
-);
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // button
@@ -188,6 +181,18 @@ slight_ButtonInput button(
      500,  // const uint16_t cwDuration_ClickLong_New =   3000,
      500   // const uint16_t cwDuration_ClickDouble_New = 1000
 );
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// FaderLin
+
+const uint8_t myFaderRGB__channel_count = LEDBoard::colors_per_led;
+slight_FaderLin myFaderRGB(
+    0, // byte cbID_New
+    myFaderRGB__channel_count, // byte cbChannelCount_New
+    myFaderRGB_callback_OutputChanged, // tCbfuncValuesChanged cbfuncValuesChanged_New
+    myCallback_onEvent // tCbfuncStateChanged cbfuncStateChanged_New
+);
+
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // lowbat
@@ -220,7 +225,7 @@ int freeRam () {
     return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
 }
 
-void setup_DebugOut(const Print &out) {
+void setup_DebugOut(Print &out) {
     // for ATmega32U4 devices:
     #if defined (__AVR_ATmega32U4__)
         // wait for arduino IDE to release all serial ports after upload.
@@ -246,7 +251,7 @@ void setup_DebugOut(const Print &out) {
     out.println(freeRam());
 }
 
-void handle_debugout(const Print &out) {
+void handle_debugout(Print &out) {
     if (
         (millis() - debugOut_LiveSign_TimeStamp_LastAction) >
         debugOut_LiveSign_UpdateInterval
@@ -275,6 +280,19 @@ void handle_debugout(const Print &out) {
             }
         }
 
+    }
+}
+
+void handle_debugout_dmx(Print &out) {
+
+    if ( debugOut_dmx_Enabled ) {
+        if (
+            (millis() - debugOut_dmx_TimeStamp_LastAction) >
+            debugOut_dmx_UpdateInterval
+        ) {
+            debugOut_dmx_TimeStamp_LastAction = millis();
+            dmx_handling::print_values(out);
+        }
     }
 }
 
@@ -326,6 +344,13 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
             out.println(F("\t 'c': toggle HORIZONTAL"));
             out.println(F("\t 'C': toggle SUN WAVE blue"));
             out.println(F("\t 'd': toggle SUN WAVE orange"));
+            out.println();
+            out.print(F("\t 'r': toggle effect_control ("));
+            out.print(dmx_handling::effect_control);
+            out.println(F(")"));
+            out.print(F("\t 'R': toggle debugOut_dmx_Enabled ("));
+            out.print(debugOut_dmx_Enabled);
+            out.println(F(")"));
             out.println();
             out.print(F("\t 'I': set sequencer interval 'i65535' ("));
             out.print(effe::sequencer_interval);
@@ -477,6 +502,20 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
                 effe::sequencer_direction_forward = true;
             }
         } break;
+        // ------------------------------------------
+        case 'r': {
+            out.print(F("\t toggle effect_control:"));
+            dmx_handling::effect_control = !dmx_handling::effect_control;
+            out.print(dmx_handling::effect_control);
+            out.println();
+        } break;
+        case 'R': {
+            out.print(F("\t debugOut_dmx_Enabled:"));
+            debugOut_dmx_Enabled = !debugOut_dmx_Enabled;
+            out.print(debugOut_dmx_Enabled);
+            out.println();
+        } break;
+        // ------------------------------------------
         case 'I': {
             out.print(F("\t set sequencer interval "));
             // convert part of string to int
@@ -560,123 +599,6 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
     } // end switch
 
     // end Command Parser
-}
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// FaderLin
-
-void setup_myFaderRGB(Print &out) {
-    out.println(F("setup myFaderRGB:"));
-
-    out.println(F("\t myFaderRGB.begin();"));
-    myFaderRGB.begin();
-
-    out.println(F("\t myFaderRGB welcome fade"));
-    // myFaderRGB.startFadeTo( 1000, memList_A[memList_A__Full]);
-    myFaderRGB_fadeTo(1000, 60000, 60000, 0);
-    // run fading
-    // while ( myFaderRGB.getLastEvent() == slight_FaderLin::event_fading_Finished) {
-    //     myFaderRGB.update();
-    // }
-    while ( myFaderRGB.update() == slight_FaderLin::state_Fading) {
-        // nothing to do.
-    }
-    myFaderRGB.update();
-
-    // myFaderRGB.startFadeTo( 1000, memList_A[memList_A__Off]);
-    myFaderRGB_fadeTo(1000, 1000, 500, 1);
-    // run fading
-    // while ( myFaderRGB.getLastEvent() != slight_FaderLin::event_fading_Finished) {
-    //     myFaderRGB.update();
-    // }
-    while ( myFaderRGB.update() == slight_FaderLin::state_Fading) {
-        // nothing to do.
-    }
-    myFaderRGB.update();
-
-    // myFaderRGB.startFadeTo( 1000, memList_A[memList_A__Off]);
-    myFaderRGB_fadeTo(1000, 0, 0, 1);
-    // run fading
-    // while ( myFaderRGB.getLastEvent() != slight_FaderLin::event_fading_Finished) {
-    //     myFaderRGB.update();
-    // }
-    while ( myFaderRGB.update() == slight_FaderLin::state_Fading) {
-        // nothing to do.
-    }
-    myFaderRGB.update();
-
-    out.println(F("\t finished."));
-}
-
-void myFaderRGB_callback_OutputChanged(uint8_t id, uint16_t *values, uint8_t count) {
-
-    // if (bDebugOut_myFaderRGB_Output_Enable) {
-    //     Serial.print(F("OutputValue: "));
-    //     printArray_uint16(Serial, wValues, bCount);
-    //     Serial.println();
-    // }
-
-    // for (size_t channel_index = 0; channel_index < count; channel_index++) {
-    //     LEDBoard::tlc.setChannel(channel_index, values[channel_index]);
-    // }
-
-    if (LEDBoard::output_enabled) {
-        LEDBoard::tlc.setRGB(values[0], values[1], values[2]);
-        LEDBoard::tlc.write();
-    }
-
-}
-
-void myFaderRGB_fadeTo(uint16_t duration, uint16_t r, uint16_t g, uint16_t b) {
-    uint16_t values[myFaderRGB__channel_count];
-    // init array with 0
-    values[0] = r;
-    values[1] = g;
-    values[2] = b;
-    myFaderRGB.startFadeTo(duration, values);
-}
-
-void myCallback_onEvent(slight_FaderLin *pInstance, byte event) {
-
-
-    // Serial.print(F("Instance ID:"));
-    // Serial.println((*pInstance).getID());
-    //
-    // Serial.print(F("Event: "));
-    // (*pInstance).printEvent(Serial, event);
-    // Serial.println();
-
-
-    // react on events:
-    switch (event) {
-        case slight_FaderLin::event_StateChanged : {
-            // Serial.print(F("slight_FaderLin "));
-            // Serial.print((*pInstance).getID());
-            // Serial.println(F(" : "));
-            // Serial.print(F("\t state: "));
-            // (*pInstance).printState(Serial);
-            // Serial.println();
-
-            // switch (state) {
-            //     case slight_FaderLin::state_Standby : {
-            //             //
-            //         } break;
-            //     case slight_FaderLin::state_Fading : {
-            //             //
-            //         } break;
-            //     case slight_FaderLin::state_Finished : {
-            //             //
-            //         } break;
-            // } //end switch
-
-
-        } break;
-
-        case slight_FaderLin::event_fading_Finished : {
-            // Serial.print(F("\t fading Finished."));
-        } break;
-    } //end switch
-
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -827,6 +749,123 @@ void button_onEvent(slight_ButtonInput *pInstance, byte bEvent) {
     }  // end switch
 }
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// FaderLin
+
+void setup_myFaderRGB(Print &out) {
+    out.println(F("setup myFaderRGB:"));
+
+    out.println(F("\t myFaderRGB.begin();"));
+    myFaderRGB.begin();
+
+    out.println(F("\t myFaderRGB welcome fade"));
+    // myFaderRGB.startFadeTo( 1000, memList_A[memList_A__Full]);
+    myFaderRGB_fadeTo(1000, 60000, 60000, 0);
+    // run fading
+    // while ( myFaderRGB.getLastEvent() == slight_FaderLin::event_fading_Finished) {
+    //     myFaderRGB.update();
+    // }
+    while ( myFaderRGB.update() == slight_FaderLin::state_Fading) {
+        // nothing to do.
+    }
+    myFaderRGB.update();
+
+    // myFaderRGB.startFadeTo( 1000, memList_A[memList_A__Off]);
+    myFaderRGB_fadeTo(1000, 1000, 500, 1);
+    // run fading
+    // while ( myFaderRGB.getLastEvent() != slight_FaderLin::event_fading_Finished) {
+    //     myFaderRGB.update();
+    // }
+    while ( myFaderRGB.update() == slight_FaderLin::state_Fading) {
+        // nothing to do.
+    }
+    myFaderRGB.update();
+
+    // myFaderRGB.startFadeTo( 1000, memList_A[memList_A__Off]);
+    myFaderRGB_fadeTo(1000, 0, 0, 1);
+    // run fading
+    // while ( myFaderRGB.getLastEvent() != slight_FaderLin::event_fading_Finished) {
+    //     myFaderRGB.update();
+    // }
+    while ( myFaderRGB.update() == slight_FaderLin::state_Fading) {
+        // nothing to do.
+    }
+    myFaderRGB.update();
+
+    out.println(F("\t finished."));
+}
+
+void myFaderRGB_callback_OutputChanged(uint8_t id, uint16_t *values, uint8_t count) {
+
+    // if (bDebugOut_myFaderRGB_Output_Enable) {
+    //     Serial.print(F("OutputValue: "));
+    //     printArray_uint16(Serial, wValues, bCount);
+    //     Serial.println();
+    // }
+
+    // for (size_t channel_index = 0; channel_index < count; channel_index++) {
+    //     LEDBoard::tlc.setChannel(channel_index, values[channel_index]);
+    // }
+
+    if (LEDBoard::output_enabled) {
+        LEDBoard::tlc.setRGB(values[0], values[1], values[2]);
+        LEDBoard::tlc.write();
+    }
+
+}
+
+void myFaderRGB_fadeTo(uint16_t duration, uint16_t r, uint16_t g, uint16_t b) {
+    uint16_t values[myFaderRGB__channel_count];
+    // init array with 0
+    values[0] = r;
+    values[1] = g;
+    values[2] = b;
+    myFaderRGB.startFadeTo(duration, values);
+}
+
+void myCallback_onEvent(slight_FaderLin *pInstance, byte event) {
+
+
+    // Serial.print(F("Instance ID:"));
+    // Serial.println((*pInstance).getID());
+    //
+    // Serial.print(F("Event: "));
+    // (*pInstance).printEvent(Serial, event);
+    // Serial.println();
+
+
+    // react on events:
+    switch (event) {
+        case slight_FaderLin::event_StateChanged : {
+            // Serial.print(F("slight_FaderLin "));
+            // Serial.print((*pInstance).getID());
+            // Serial.println(F(" : "));
+            // Serial.print(F("\t state: "));
+            // (*pInstance).printState(Serial);
+            // Serial.println();
+
+            // switch (state) {
+            //     case slight_FaderLin::state_Standby : {
+            //             //
+            //         } break;
+            //     case slight_FaderLin::state_Fading : {
+            //             //
+            //         } break;
+            //     case slight_FaderLin::state_Finished : {
+            //             //
+            //         } break;
+            // } //end switch
+
+
+        } break;
+
+        case slight_FaderLin::event_fading_Finished : {
+            // Serial.print(F("\t fading Finished."));
+        } break;
+    } //end switch
+
+}
+
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // lowbat
@@ -944,6 +983,7 @@ void loop() {
     dmx_handling::update();
 
     handle_debugout(DebugOut);
+    handle_debugout_dmx(DebugOut);
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

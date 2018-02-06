@@ -49,32 +49,12 @@ uint8_t sequencer_direction_forward = true;
 // private function definitions
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
-void map_to_allBoards();
-
-void map_to_nBoards(
-  const uint8_t board_start_index,
-  const uint8_t boards_count_local,
-  const uint8_t boards_per_copy
-);
-
-void calculate_step__effectmap(
-    const uint8_t *effect_map,
-    const uint8_t row_count,
-    const uint8_t column_count,
-    const uint8_t board_start_index,
-    // const uint16_t tail[][LEDBoard::colors_per_led],
-    const uint16_t tail[][3],
-    const uint8_t tail_count
-);
-
-
-
-
+// if they are in the correct order you don't need to define theme :-)
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // private functions
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 
 // parse the pointer to the first element of the effect_map
@@ -197,6 +177,79 @@ void calculate_step__effectmap(
             // }
 
             // Serial.println();
+        }
+    }
+}
+
+
+
+void map_to_allBoards() {
+    if (LEDBoard::output_enabled) {
+        // set all channels (mapping)
+        for (
+            size_t channel_index = 0;
+            channel_index < LEDBoard::colorchannels_per_board;
+            channel_index++
+        ) {
+            // uint8_t mapped_channel = mapping_single_board[i];
+            // Serial.print("mapping: ");
+            // Serial.print(i);
+            // Serial.print("-->");
+            // Serial.print(mapped_channel);
+            // Serial.println();
+            for (
+                size_t board_index = 0;
+                board_index < LEDBoard::boards_count;
+                board_index++
+            ) {
+                LEDBoard::tlc.setChannel(
+                    channel_index +
+                    (LEDBoard::tlc_channels_per_board * board_index),
+                    LEDBoard::tlc.getChannel(channel_index));
+            }
+        }
+    }
+}
+
+void map_to_nBoards(
+  uint8_t board_start_index,
+  uint8_t boards_count_local,
+  uint8_t boards_per_copy
+) {
+    if (LEDBoard::output_enabled) {
+        // set all channels (mapping)
+        for (
+            size_t board_index = board_start_index;
+            board_index < (board_start_index + boards_count_local);
+            board_index += boards_per_copy
+        ) {
+            // Serial.print("bi: ");
+            // Serial.print(board_index);
+            // Serial.println();
+            // copy channels for both boards
+            for (
+                size_t channel_index = 0;
+                channel_index <
+                    (LEDBoard::colorchannels_per_board*boards_per_copy);
+                channel_index++
+            ) {
+                // uint8_t mapped_channel = mapping_single_board[i];
+                // Serial.print("mapping: ");
+                // Serial.print(i);
+                // Serial.print("-->");
+                // Serial.print(mapped_channel);
+                // Serial.println();
+
+                // get channel value
+                uint16_t temp_value = LEDBoard::tlc.getChannel(
+                  channel_index +
+                  (LEDBoard::tlc_channels_per_board * (board_start_index)));
+                // set channel value
+                LEDBoard::tlc.setChannel(
+                    channel_index +
+                    (LEDBoard::tlc_channels_per_board * (board_index)),
+                    temp_value);
+            }
         }
     }
 }
@@ -909,89 +962,15 @@ void calculate_step() {
             calculate_step_mounting_sun_spiral();
         } break;
         case sequencer_SUN_WAVE_BLUE: {
-          calculate_step_mounting_sun_waves_blue();
+            calculate_step_mounting_sun_waves_blue();
         } break;
         case sequencer_SUN_WAVE_ORANGE: {
-          calculate_step_mounting_sun_waves_orange();
+            calculate_step_mounting_sun_waves_orange();
         } break;
     }
     if (sequencer_mode > sequencer_OFF) {
         // write data to chips
         LEDBoard::tlc.write();
-    }
-}
-
-
-
-
-void map_to_allBoards() {
-    if (LEDBoard::output_enabled) {
-        // set all channels (mapping)
-        for (
-            size_t channel_index = 0;
-            channel_index < LEDBoard::colorchannels_per_board;
-            channel_index++
-        ) {
-            // uint8_t mapped_channel = mapping_single_board[i];
-            // Serial.print("mapping: ");
-            // Serial.print(i);
-            // Serial.print("-->");
-            // Serial.print(mapped_channel);
-            // Serial.println();
-            for (
-                size_t board_index = 0;
-                board_index < LEDBoard::boards_count;
-                board_index++
-            ) {
-                LEDBoard::tlc.setChannel(
-                    channel_index +
-                    (LEDBoard::tlc_channels_per_board * board_index),
-                    LEDBoard::tlc.getChannel(channel_index));
-            }
-        }
-    }
-}
-
-void map_to_nBoards(
-  uint8_t board_start_index,
-  uint8_t boards_count_local,
-  uint8_t boards_per_copy
-) {
-    if (LEDBoard::output_enabled) {
-        // set all channels (mapping)
-        for (
-            size_t board_index = board_start_index;
-            board_index < (board_start_index + boards_count_local);
-            board_index += boards_per_copy
-        ) {
-            // Serial.print("bi: ");
-            // Serial.print(board_index);
-            // Serial.println();
-            // copy channels for both boards
-            for (
-                size_t channel_index = 0;
-                channel_index <
-                    (LEDBoard::colorchannels_per_board*boards_per_copy);
-                channel_index++
-            ) {
-                // uint8_t mapped_channel = mapping_single_board[i];
-                // Serial.print("mapping: ");
-                // Serial.print(i);
-                // Serial.print("-->");
-                // Serial.print(mapped_channel);
-                // Serial.println();
-
-                // get channel value
-                uint16_t temp_value = LEDBoard::tlc.getChannel(
-                  channel_index +
-                  (LEDBoard::tlc_channels_per_board * (board_start_index)));
-                // set channel value
-                LEDBoard::tlc.setChannel(
-                    channel_index +
-                    (LEDBoard::tlc_channels_per_board * (board_index)),
-                    temp_value);
-            }
-        }
     }
 }
 
