@@ -696,6 +696,7 @@ void button_onEvent(slight_ButtonInput *pInstance, byte bEvent) {
             if (effe::sequencer_mode == effe::sequencer_OFF) {
                 effe::sequencer_mode = effe::sequencer_CHANNELCHECK;
                 effe::sequencer_interval = 500;
+                dmx_handling::effect_control = true;
                 Serial.print(F("\t sequencer_mode: CHANNELCHECK\n"));
             }
             else {
@@ -712,12 +713,14 @@ void button_onEvent(slight_ButtonInput *pInstance, byte bEvent) {
             // Serial.println(F("click double"));
             effe::sequencer_mode = effe::sequencer_SPIRAL;
             effe::sequencer_interval = 100;
+            dmx_handling::effect_control = true;
             Serial.print(F("\t sequencer_mode: SPIRAL\n"));
         } break;
         case slight_ButtonInput::event_ClickTriple : {
             // Serial.println(F("click triple"));
             effe::sequencer_mode = effe::sequencer_SUN_SPIRAL;
             effe::sequencer_interval = 100;
+            dmx_handling::effect_control = false;
             Serial.print(F("\t sequencer_mode: SUN SPIRAL\n"));
         } break;
         case slight_ButtonInput::event_ClickMulti : {
@@ -727,21 +730,25 @@ void button_onEvent(slight_ButtonInput *pInstance, byte bEvent) {
                 case 4 : {
                   effe::sequencer_mode = effe::sequencer_SUN_WAVE_BLUE;
                   effe::sequencer_interval = 100;
+                  dmx_handling::effect_control = false;
                   Serial.print(F("\t sequencer_mode: sequencer_SUN_WAVE_BLUE\n"));
                 } break;
                 case 5 : {
                     effe::sequencer_mode = effe::sequencer_SUN_WAVE_ORANGE;
                     effe::sequencer_interval = 50;
+                    dmx_handling::effect_control = false;
                     Serial.print(F("\t sequencer_mode: sequencer_SUN_WAVE_ORANGE\n"));
                 } break;
                 case 6 : {
                     effe::sequencer_mode = effe::sequencer_HPLINE;
                     effe::sequencer_interval = 50;
+                    dmx_handling::effect_control = false;
                     Serial.print(F("\t sequencer_mode: High Power Line\n"));
                 } break;
                 case 7 : {
                     effe::sequencer_mode = effe::sequencer_SPIRAL2;
                     effe::sequencer_interval = 50;
+                    dmx_handling::effect_control = false;
                     Serial.print(F("\t sequencer_mode: SPIRAL 2boards\n"));
                 } break;
             }
