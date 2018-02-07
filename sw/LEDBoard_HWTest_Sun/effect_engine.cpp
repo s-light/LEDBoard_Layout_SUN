@@ -45,6 +45,8 @@ uint32_t sequencer_interval = 1000;
 int16_t sequencer_current_step = 0;
 uint8_t sequencer_direction_forward = true;
 
+uint16_t sequencer_color[LEDBoard::colors_per_led] = {     0, 10000,     0};
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // private function definitions
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -256,6 +258,17 @@ void map_to_nBoards(
 
 
 
+// void set_hsv_color(uint16_t hue, uint16_t saturation, uint16_t value) {
+//     map(hue, 0,)
+// }
+void set_hsv_color(uint8_t hue, uint8_t saturation, uint8_t value) {
+    CRGB rgb8bit;
+    hsv2rgb_rainbow(CHSV(hue, saturation, value), rgb8bit);
+    sequencer_color[0] = rgb8bit.r;
+    sequencer_color[1] = rgb8bit.g;
+    sequencer_color[2] = rgb8bit.b;
+}
+
 
 
 void sequencer_off() {
@@ -389,13 +402,13 @@ void calculate_step__spiral() {
 
             if (spiral_order[column][row] == (uint8_t)sequencer_current_step) {
                 // set pixel to high
-                LEDBoard::tlc.setChannel(ch + 0, 0);
-                LEDBoard::tlc.setChannel(ch + 1, 0);
-                LEDBoard::tlc.setChannel(ch + 2, value_high);
+                LEDBoard::tlc.setChannel(ch + 0, sequencer_color[0]);
+                LEDBoard::tlc.setChannel(ch + 1, sequencer_color[1]);
+                LEDBoard::tlc.setChannel(ch + 2, sequencer_color[2]);
             } else {
                 // set pixel to low
                 LEDBoard::tlc.setChannel(ch + 0, 0);
-                LEDBoard::tlc.setChannel(ch + 1, value_low);
+                LEDBoard::tlc.setChannel(ch + 1, 0);
                 LEDBoard::tlc.setChannel(ch + 2, 0);
             }
         }

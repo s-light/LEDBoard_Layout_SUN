@@ -150,6 +150,34 @@ void update() {
     // uiDMXValue_Pan  = DMXSerial.read(12);
 }
 
+
+void map_as_color() {
+    // effect_engine::set_hsv_color(
+    //     // hue
+    //     map(
+    //         constrain(values[ch_a_x], -15000, 15000),
+    //         -15000, 15000, 0, 65535),
+    //     // saturation
+    //     65535,
+    //     // value
+    //     map(
+    //         constrain(values[ch_heading], 0, 360),
+    //         0, 360, 0, 65535)
+    // );
+    effect_engine::set_hsv_color(
+        // hue
+        map(
+            constrain(values[ch_a_x], -15000, 15000),
+            -15000, 15000, 0, 255),
+        // saturation
+        255,
+        // value
+        map(
+            constrain(values[ch_heading], 0, 360),
+            0, 360, 0, 255));
+}
+
+
 // private functions
 void handle_new_values() {
     // for (size_t i = 0; i < values_count; i = i + 2) {
@@ -160,6 +188,25 @@ void handle_new_values() {
     //     }
     // }
     if (effect_control) {
+        // if (bitRead(values_dirty, ch_heading)) {
+        //     // clear
+        //     bitClear(values_dirtx, ch_heading);
+        //     // handle
+        //     effect_engine::sequencer_interval = map(
+        //         constrain(values[ch_heading], -15000, 15000),
+        //         -15000, 15000,
+        //         0, 2000);
+        // }
+        if (
+            bitRead(values_dirty, ch_a_x) ||
+            bitRead(values_dirty, ch_heading)
+        ) {
+            // clear
+            bitClear(values_dirty, ch_a_x);
+            bitClear(values_dirty, ch_heading);
+            // handle
+            map_as_color();
+        }
         if (bitRead(values_dirty, ch_a_y)) {
             // clear
             bitClear(values_dirty, ch_a_y);

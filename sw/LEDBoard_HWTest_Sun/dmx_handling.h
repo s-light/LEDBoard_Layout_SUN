@@ -33,6 +33,7 @@
 #include <Arduino.h>
 
 #include <DMXSerial.h>
+#include <FastLED.h>
 
 #include "effect_engine.h"
 

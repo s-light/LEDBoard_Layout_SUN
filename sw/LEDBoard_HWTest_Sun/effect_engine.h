@@ -34,6 +34,8 @@
 
 #include "LEDBoard.h"
 
+#include <FastLED.h>
+
 namespace effect_engine {
     enum sequencer_modes {
         sequencer_OFF,
@@ -58,6 +60,9 @@ namespace effect_engine {
 
     extern int16_t sequencer_current_step;
     extern uint8_t sequencer_direction_forward;
+
+
+    extern uint16_t sequencer_color[];
 
 
     const uint8_t tail_orange_count = 9;
@@ -116,6 +121,8 @@ namespace effect_engine {
 
     void update();
 
+    // void set_hsv_color(uint16_t hue, uint16_t saturation, uint16_t value);
+    void set_hsv_color(uint8_t hue, uint8_t saturation, uint8_t value);
 
 }  // namespace effect_engine
 
