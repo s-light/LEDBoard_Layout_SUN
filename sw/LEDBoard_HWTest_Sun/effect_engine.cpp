@@ -265,11 +265,13 @@ void set_hsv_color(uint8_t hue, uint8_t saturation, uint8_t value) {
     CRGB rgb8bit;
     hsv2rgb_rainbow(CHSV(hue, saturation, value), rgb8bit);
     // uint16_t(rgb8bit.r) << 8
-    // is the same as
-    // rgb8bit.r * 256
+    // is good enough (we don't reach 100% this way...)
     sequencer_color[0] = uint16_t(rgb8bit.r) << 8;
     sequencer_color[1] = uint16_t(rgb8bit.g) << 8;
     sequencer_color[2] = uint16_t(rgb8bit.b) << 8;
+    // sequencer_color[0] = map(rgb8bit.r, 0, 255, 0, 65535);
+    // sequencer_color[1] = map(rgb8bit.g, 0, 255, 0, 65535);
+    // sequencer_color[2] = map(rgb8bit.b, 0, 255, 0, 65535);
 }
 
 

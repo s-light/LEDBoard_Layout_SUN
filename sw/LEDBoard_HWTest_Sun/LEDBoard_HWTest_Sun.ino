@@ -292,6 +292,7 @@ void handle_debugout_dmx(Print &out) {
         ) {
             debugOut_dmx_TimeStamp_LastAction = millis();
             dmx_handling::print_values(out);
+            dmx_handling::print_values_raw(out);
         }
     }
 }
@@ -338,7 +339,7 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
             // out.println(F("\t 'A': Show 'HelloWorld' "));
             out.println(F("\t 'o': sequencer off"));
             out.println(F("\t 'a': toggle CHANNELCHECK"));
-            out.println(F("\t 'a': toggle SPIRAL"));
+            out.println(F("\t 'A': toggle SPIRAL"));
             out.println(F("\t 'b': toggle SPIRAL2"));
             out.println(F("\t 'B': toggle SUN SPIRAL"));
             out.println(F("\t 'c': toggle HORIZONTAL"));

@@ -39,6 +39,7 @@
 
 namespace dmx_handling {
 const uint8_t dmx_pin_direction = 15;
+const uint8_t dmx_pin_newdata_led = 14;
 const uint8_t dmx_pin_valid_led = 13;
 
 // timeout in milliseconds
@@ -48,17 +49,20 @@ enum channel_names {
     ch_a_x,
     ch_a_y,
     ch_a_z,
-    ch_m_x,
-    ch_m_y,
-    ch_m_z,
+    // ch_m_x,
+    // ch_m_y,
+    // ch_m_z,
     ch_heading,
     ch_temp,
 };
-const size_t values_count = 8;
 extern size_t values_dirty;
-extern int16_t values[];
+// const size_t values_count = 8;
+const size_t values_count = 5;
+// extern int16_t values[];
+extern uint8_t values[];
 
-const uint16_t dmx_maxchannel_count = values_count*2;
+// const uint16_t dmx_maxchannel_count = values_count*2;
+const uint16_t dmx_maxchannel_count = 8;
 
 extern bool dmx_valid;
 extern uint16_t dmx_start_channel;
@@ -66,6 +70,7 @@ extern bool effect_control;
 
 size_t chname2chindex(channel_names name);
 void print_values(Print &out);
+void print_values_raw(Print &out);
 
 void setup(Print &out);
 void update();

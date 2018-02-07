@@ -39,31 +39,79 @@ bool effect_control = false;
 // const size_t values_count = dmx_maxchannel_count / (int16_t);
 // const size_t values_count = 8;
 size_t values_dirty = 0b00000000;
-int16_t values[values_count];
+// int16_t values[values_count];
+uint8_t values[values_count];
 
 
 
 void handle_new_values();
 
 size_t chname2chindex(channel_names name) {
-    return (name*2);
+    // return (name*2);
+    return (name*1);
 }
 
 
 void print_values(Print &out) {
     char line[100];
+    // snprintf(
+    //     line,
+    //     sizeof(line),
+    //     "A: %6d %6d %6d M: %6d %6d %6d H: %6d T: %6d",
+    //     values[ch_a_x],
+    //     values[ch_a_y],
+    //     values[ch_a_z],
+    //     values[ch_m_x],
+    //     values[ch_m_y],
+    //     values[ch_m_z],
+    //     values[ch_heading],
+    //     values[ch_temp]);
+    // out.println(line);
     snprintf(
         line,
         sizeof(line),
-        "A: %6d %6d %6d M: %6d %6d %6d H: %6d T: %6d",
+        "A: %3u %3u %3u H: %3u T: %3u",
         values[ch_a_x],
         values[ch_a_y],
         values[ch_a_z],
-        values[ch_m_x],
-        values[ch_m_y],
-        values[ch_m_z],
         values[ch_heading],
         values[ch_temp]);
+    out.println(line);
+}
+
+void print_values_raw(Print &out) {
+    char line[100];
+    // snprintf(
+    //     line,
+    //     sizeof(line),
+    //     "[%3u, %3u, %3u, %3u, %3u, %3u, %3u, %3u,"
+    //     " %3u, %3u, %3u, %3u, %3u, %3u, %3u, %3u]",
+    //     DMXSerial.read(dmx_start_channel + 0),
+    //     DMXSerial.read(dmx_start_channel + 1),
+    //     DMXSerial.read(dmx_start_channel + 2),
+    //     DMXSerial.read(dmx_start_channel + 3),
+    //     DMXSerial.read(dmx_start_channel + 4),
+    //     DMXSerial.read(dmx_start_channel + 5),
+    //     DMXSerial.read(dmx_start_channel + 6),
+    //     DMXSerial.read(dmx_start_channel + 7),
+    //     DMXSerial.read(dmx_start_channel + 8),
+    //     DMXSerial.read(dmx_start_channel + 9),
+    //     DMXSerial.read(dmx_start_channel + 10),
+    //     DMXSerial.read(dmx_start_channel + 11),
+    //     DMXSerial.read(dmx_start_channel + 12),
+    //     DMXSerial.read(dmx_start_channel + 13),
+    //     DMXSerial.read(dmx_start_channel + 14),
+    //     DMXSerial.read(dmx_start_channel + 15));
+    snprintf(
+        line,
+        sizeof(line),
+        "[%3u, %3u, %3u, %3u, %3u]",
+        DMXSerial.read(dmx_start_channel + 1),
+        DMXSerial.read(dmx_start_channel + 2),
+        DMXSerial.read(dmx_start_channel + 3),
+        DMXSerial.read(dmx_start_channel + 4),
+        DMXSerial.read(dmx_start_channel + 5),
+        DMXSerial.read(dmx_start_channel + 6));
     out.println(line);
 }
 
@@ -73,15 +121,21 @@ void setup(Print &out) {
     out.println(F("setup DMX:"));
 
     pinMode(dmx_pin_valid_led, OUTPUT);
+    pinMode(dmx_pin_newdata_led, OUTPUT);
     digitalWrite(dmx_pin_valid_led, HIGH);
+    digitalWrite(dmx_pin_newdata_led, HIGH);
     delay(100);
     digitalWrite(dmx_pin_valid_led, LOW);
+    digitalWrite(dmx_pin_newdata_led, LOW);
     delay(100);
     digitalWrite(dmx_pin_valid_led, HIGH);
+    digitalWrite(dmx_pin_newdata_led, HIGH);
     delay(100);
     digitalWrite(dmx_pin_valid_led, LOW);
+    digitalWrite(dmx_pin_newdata_led, LOW);
     delay(100);
     digitalWrite(dmx_pin_valid_led, HIGH);
+    digitalWrite(dmx_pin_newdata_led, HIGH);
 
     // set to receive mode
     Serial.println(F("\t init as DMXReceiver"));
@@ -90,6 +144,10 @@ void setup(Print &out) {
     // set to send mode
     // Serial.println(F("\t init as DMXController"));
     // DMXSerial.init(DMXController, dmx_pin_direction);
+
+    Serial.print(F("\t set maxChannel "));
+    Serial.println(dmx_maxchannel_count);
+    DMXSerial.maxChannel(dmx_maxchannel_count);
 
     // Serial.println(F("\t set some values"));
     // DMXSerial.write(10, 255);
@@ -101,7 +159,7 @@ void setup(Print &out) {
     out.println(F("\t finished."));
 }
 
-void update() {
+void update(Print &out) {
     bool dmx_valid_new = false;
     if (DMXSerial.noDataSince() < dmx_valid_timeout) {
         dmx_valid_new = true;
@@ -126,18 +184,28 @@ void update() {
         // check if values are new
         for (size_t i = 0; i < values_count; i++) {
             size_t ch = chname2chindex(channel_names(i));
-            uint16_t value_new = 0;
-            value_new |= DMXSerial.read(dmx_start_channel + ch + 0) << 8;
-            value_new |= DMXSerial.read(dmx_start_channel + ch + 1);
-            if (values[i] != int16_t(value_new)) {
-                values[i] = int16_t(value_new);
+            // uint16_t value_new = 0;
+            // value_new |= DMXSerial.read(dmx_start_channel + ch + 0) << 8;
+            // value_new |= DMXSerial.read(dmx_start_channel + ch + 1);
+            // if (values[i] != int16_t(value_new)) {
+            //     values[i] = int16_t(value_new);
+            //     bitSet(values_dirty, i);
+            // } else {
+            //     bitClear(values_dirty, i);
+            // }
+            uint8_t value_new = DMXSerial.read(dmx_start_channel + ch + 0);
+            if (values[i] != value_new) {
+                values[i] = value_new;
                 bitSet(values_dirty, i);
             } else {
                 bitClear(values_dirty, i);
             }
         }
         if (values_dirty) {
-            handle_new_values();
+            digitalWrite(dmx_pin_newdata_led, LOW);
+            handle_new_values(out);
+        } else {
+            digitalWrite(dmx_pin_newdata_led, HIGH);
         }
     } else {
         digitalWrite(dmx_pin_valid_led, HIGH);
@@ -164,22 +232,40 @@ void map_as_color() {
     //         constrain(values[ch_heading], 0, 360),
     //         0, 360, 0, 65535)
     // );
+    // effect_engine::set_hsv_color(
+    //     // hue
+    //     map(
+    //         constrain(values[ch_a_x], -15000, 15000),
+    //         -15000, 15000, 0, 255),
+    //     // saturation
+    //     255,
+    //     // value
+    //     map(
+    //         constrain(values[ch_heading], 0, 360),
+    //         0, 360, 0, 255));
     effect_engine::set_hsv_color(
         // hue
-        map(
-            constrain(values[ch_a_x], -15000, 15000),
-            -15000, 15000, 0, 255),
+        values[ch_heading],
         // saturation
         255,
         // value
-        map(
-            constrain(values[ch_heading], 0, 360),
-            0, 360, 0, 255));
+        120);
+        // values[ch_heading]);
 }
 
+void map_as_sequencer_interval() {
+    // effect_engine::sequencer_interval = map(
+    //     constrain(values[ch_a_y], -15000, 15000),
+    //     -15000, 15000,
+    //     0, 2000);
+    effect_engine::sequencer_interval = map(
+        values[ch_a_y],
+        0, 255,
+        0, 2000);
+}
 
 // private functions
-void handle_new_values() {
+void handle_new_values(Print &out) {
     // for (size_t i = 0; i < values_count; i = i + 2) {
     //     if (bitRead(values_dirty, i)) {
     //         // clear
@@ -205,16 +291,15 @@ void handle_new_values() {
             bitClear(values_dirty, ch_a_x);
             bitClear(values_dirty, ch_heading);
             // handle
+            out.println("map_as_color()");
             map_as_color();
         }
         if (bitRead(values_dirty, ch_a_y)) {
             // clear
             bitClear(values_dirty, ch_a_y);
             // handle
-            effect_engine::sequencer_interval = map(
-                constrain(values[ch_a_y], -15000, 15000),
-                -15000, 15000,
-                0, 2000);
+            out.println("map_as_sequencer_interval()");
+            map_as_sequencer_interval();
         }
     }
 }
