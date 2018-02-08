@@ -33,9 +33,7 @@
 #include <Arduino.h>
 
 #include <DMXSerial.h>
-#include <FastLED.h>
 
-#include "effect_engine.h"
 
 namespace dmx_handling {
 const uint8_t dmx_pin_direction = 15;

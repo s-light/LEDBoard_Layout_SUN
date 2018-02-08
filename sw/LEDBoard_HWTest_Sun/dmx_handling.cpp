@@ -171,7 +171,7 @@ void update(Print &out) {
 
         // check if values are new
         for (size_t i = 0; i < values_count; i++) {
-            size_t ch = chname2chindex(channel_names(i));
+            // size_t ch = chname2chindex(channel_names(i));
             // uint16_t value_new = 0;
             // value_new |= DMXSerial.read(dmx_start_channel + ch + 0) << 8;
             // value_new |= DMXSerial.read(dmx_start_channel + ch + 1);
@@ -181,7 +181,7 @@ void update(Print &out) {
             // } else {
             //     bitClear(values_dirty, i);
             // }
-            uint8_t value_new = DMXSerial.read(dmx_start_channel + ch + 0);
+            uint8_t value_new = DMXSerial.read(dmx_start_channel + i);
             if (values[i] != value_new) {
                 values[i] = value_new;
                 bitSet(values_dirty, i);
@@ -221,48 +221,11 @@ void update(Print &out) {
 
 
 void map_as_color() {
-    // effect_engine::set_hsv_color(
-    //     // hue
-    //     map(
-    //         constrain(values[ch_a_x], -15000, 15000),
-    //         -15000, 15000, 0, 65535),
-    //     // saturation
-    //     65535,
-    //     // value
-    //     map(
-    //         constrain(values[ch_heading], 0, 360),
-    //         0, 360, 0, 65535)
-    // );
-    // effect_engine::set_hsv_color(
-    //     // hue
-    //     map(
-    //         constrain(values[ch_a_x], -15000, 15000),
-    //         -15000, 15000, 0, 255),
-    //     // saturation
-    //     255,
-    //     // value
-    //     map(
-    //         constrain(values[ch_heading], 0, 360),
-    //         0, 360, 0, 255));
-    effect_engine::set_hsv_color(
-        // hue
-        values[ch_heading],
-        // saturation
-        255,
-        // value
-        120);
-        // values[ch_heading]);
+    //
 }
 
 void map_as_sequencer_interval() {
-    // effect_engine::sequencer_interval = map(
-    //     constrain(values[ch_a_y], -15000, 15000),
-    //     -15000, 15000,
-    //     0, 2000);
-    effect_engine::sequencer_interval = map(
-        values[ch_a_y],
-        0, 255,
-        0, 2000);
+    //
 }
 
 // private functions

@@ -83,11 +83,7 @@
 #include <slight_ButtonInput.h>
 
 #include "LEDBoard.h"
-#include "effect_engine.h"
 #include "dmx_handling.h"
-
-// create alias for namespace
-namespace effe = effect_engine;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Info
@@ -362,17 +358,6 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
             out.println(F(")"));
             // ----------
             out.println();
-            out.print(F("\t 'I': set sequencer interval 'i65535' ("));
-            out.print(effe::sequencer_interval);
-            out.print(F(")"));
-            out.println();
-            out.print(F("\t 'v': set effect value_low 'v65535' ("));
-            out.print(effe::value_low);
-            out.print(F(")"));
-            out.println();
-            out.print(F("\t 'V': set effect value_high 'V65535' ("));
-            out.print(effe::value_high);
-            out.print(F(")"));
             out.println();
             out.println();
             out.println(F("\t 's': set channel 's1:65535'"));
@@ -424,94 +409,7 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
         // case 'A': {
         //     out.println(F("\t Hello World! :-)"));
         // } break;
-        case 'o': {
-          out.print(F("\t sequencer_mode: OFF\n"));
-            effe::sequencer_mode = effe::sequencer_OFF;
-        } break;
-        case 'a': {
-            out.println(F("\t toggle sequencer:"));
-            if (effe::sequencer_mode == effe::sequencer_CHANNELCHECK) {
-                effe::sequencer_mode = effe::sequencer_OFF;
-                out.print(F("\t sequencer_mode: OFF\n"));
-            }
-            else {
-                effe::sequencer_mode = effe::sequencer_CHANNELCHECK;
-                out.print(F("\t sequencer_mode: CHANNELCHECK\n"));
-            }
-        } break;
-        case 'A': {
-            out.println(F("\t toggle SPIRAL:"));
-            if (effe::sequencer_mode == effe::sequencer_SPIRAL) {
-                effe::sequencer_mode = effe::sequencer_OFF;
-                out.print(F("\t sequencer_mode: OFF\n"));
-            }
-            else {
-                effe::sequencer_mode = effe::sequencer_SPIRAL;
-                out.print(F("\t sequencer_mode: SPIRAL\n"));
-            }
-        } break;
-        case 'b': {
-            out.println(F("\t toggle SPIRAL2:"));
-            if (effe::sequencer_mode == effe::sequencer_SPIRAL2) {
-                effe::sequencer_mode = effe::sequencer_OFF;
-                out.print(F("\t sequencer_mode: OFF\n"));
-            }
-            else {
-                effe::sequencer_mode = effe::sequencer_SPIRAL2;
-                out.print(F("\t sequencer_mode: SPIRAL2\n"));
-                effe::sequencer_interval = 100;
-            }
-        } break;
-        case 'B': {
-            out.println(F("\t toggle SUN SPIRAL:"));
-            if (effe::sequencer_mode == effe::sequencer_SPIRAL) {
-                effe::sequencer_mode = effe::sequencer_OFF;
-                out.print(F("\t sequencer_mode: OFF\n"));
-            }
-            else {
-                effe::sequencer_mode = effe::sequencer_SUN_SPIRAL;
-                out.print(F("\t sequencer_mode: SUN SPIRAL\n"));
-                effe::sequencer_interval = 100;
-            }
-        } break;
-        case 'c': {
-            out.println(F("\t toggle HORIZONTAL:"));
-            if (effe::sequencer_mode == effe::sequencer_HORIZONTAL) {
-                effe::sequencer_mode = effe::sequencer_OFF;
-                out.print(F("\t sequencer_mode: OFF\n"));
-            }
-            else {
-                effe::sequencer_mode = effe::sequencer_HORIZONTAL;
-                out.print(F("\t sequencer_mode: HORIZONTAL\n"));
-                effe::sequencer_interval = 200;
-            }
-        } break;
-        case 'C': {
-            out.println(F("\t toggle SUN_WAVE:"));
-            if (effe::sequencer_mode == effe::sequencer_SUN_WAVE_BLUE) {
-                effe::sequencer_mode = effe::sequencer_OFF;
-                out.print(F("\t sequencer_mode: OFF\n"));
-            }
-            else {
-                effe::sequencer_mode = effe::sequencer_SUN_WAVE_BLUE;
-                out.print(F("\t sequencer_mode: SUN_WAVE\n"));
-                effe::sequencer_interval = 100;
-                effe::sequencer_direction_forward = true;
-            }
-        } break;
-        case 'd': {
-            out.println(F("\t toggle SUN_WAVE2:"));
-            if (effe::sequencer_mode == effe::sequencer_SUN_WAVE_ORANGE) {
-                effe::sequencer_mode = effe::sequencer_OFF;
-                out.print(F("\t sequencer_mode: OFF\n"));
-            }
-            else {
-                effe::sequencer_mode = effe::sequencer_SUN_WAVE_ORANGE;
-                out.print(F("\t sequencer_mode: SUN_WAVE2\n"));
-                effe::sequencer_interval = 100;
-                effe::sequencer_direction_forward = true;
-            }
-        } break;
+
         // ------------------------------------------
         case 'r': {
             out.print(F("\t toggle effect_control:"));
@@ -541,36 +439,6 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
             dmx_handling::serial_out_interval = value;
         } break;
         // ------------------------------------------
-        case 'I': {
-            out.print(F("\t set sequencer interval "));
-            // convert part of string to int
-            // (up to first char that is not a number)
-            uint8_t command_offset = 1;
-            uint16_t value = atoi(&command[command_offset]);
-            out.print(value);
-            out.println();
-            effe::sequencer_interval = value;
-        } break;
-        case 'v': {
-            out.print(F("\t set effect value_low"));
-            // convert part of string to int
-            // (up to first char that is not a number)
-            uint8_t command_offset = 1;
-            uint16_t value = atoi(&command[command_offset]);
-            out.print(value);
-            out.println();
-            effe::value_low = value;
-        } break;
-        case 'V': {
-            out.print(F("\t set effect value_high"));
-            // convert part of string to int
-            // (up to first char that is not a number)
-            uint8_t command_offset = 1;
-            uint16_t value = atoi(&command[command_offset]);
-            out.print(value);
-            out.println();
-            effe::value_high = value;
-        } break;
         // ------------------------------------------
         case 's': {
             out.print(F("\t set channel "));
@@ -718,65 +586,19 @@ void button_onEvent(slight_ButtonInput *pInstance, byte bEvent) {
         } break;
         case slight_ButtonInput::event_Click : {
             // Serial.println(F("FRL click"));
-            if (effe::sequencer_mode == effe::sequencer_OFF) {
-                effe::sequencer_mode = effe::sequencer_CHANNELCHECK;
-                effe::sequencer_interval = 500;
-                dmx_handling::effect_control = true;
-                Serial.print(F("\t sequencer_mode: CHANNELCHECK\n"));
-            }
-            else {
-                effe::sequencer_off();
-                effe::sequencer_mode = effe::sequencer_OFF;
-                Serial.print(F("\t sequencer_mode: OFF\n"));
-            }
-
         } break;
         case slight_ButtonInput::event_ClickLong : {
             // Serial.println(F("click long"));
         } break;
         case slight_ButtonInput::event_ClickDouble : {
             // Serial.println(F("click double"));
-            effe::sequencer_mode = effe::sequencer_SPIRAL;
-            effe::sequencer_interval = 100;
-            dmx_handling::effect_control = true;
-            Serial.print(F("\t sequencer_mode: SPIRAL\n"));
         } break;
         case slight_ButtonInput::event_ClickTriple : {
             // Serial.println(F("click triple"));
-            effe::sequencer_mode = effe::sequencer_SUN_SPIRAL;
-            effe::sequencer_interval = 100;
-            dmx_handling::effect_control = false;
-            Serial.print(F("\t sequencer_mode: SUN SPIRAL\n"));
         } break;
         case slight_ButtonInput::event_ClickMulti : {
             Serial.print(F("click count: "));
             Serial.println((*pInstance).getClickCount());
-            switch ((*pInstance).getClickCount()) {
-                case 4 : {
-                  effe::sequencer_mode = effe::sequencer_SUN_WAVE_BLUE;
-                  effe::sequencer_interval = 100;
-                  dmx_handling::effect_control = false;
-                  Serial.print(F("\t sequencer_mode: sequencer_SUN_WAVE_BLUE\n"));
-                } break;
-                case 5 : {
-                    effe::sequencer_mode = effe::sequencer_SUN_WAVE_ORANGE;
-                    effe::sequencer_interval = 50;
-                    dmx_handling::effect_control = false;
-                    Serial.print(F("\t sequencer_mode: sequencer_SUN_WAVE_ORANGE\n"));
-                } break;
-                case 6 : {
-                    effe::sequencer_mode = effe::sequencer_HPLINE;
-                    effe::sequencer_interval = 50;
-                    dmx_handling::effect_control = false;
-                    Serial.print(F("\t sequencer_mode: High Power Line\n"));
-                } break;
-                case 7 : {
-                    effe::sequencer_mode = effe::sequencer_SPIRAL2;
-                    effe::sequencer_interval = 50;
-                    dmx_handling::effect_control = false;
-                    Serial.print(F("\t sequencer_mode: SPIRAL 2boards\n"));
-                } break;
-            }
         } break;
     }  // end switch
 }
@@ -1011,7 +833,6 @@ void loop() {
 
     // lowbat_check();
 
-    effect_engine::update();
     dmx_handling::update(DebugOut);
 
     handle_debugout(DebugOut);
