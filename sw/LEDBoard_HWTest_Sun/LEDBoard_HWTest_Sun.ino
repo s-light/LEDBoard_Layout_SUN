@@ -365,9 +365,12 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
             out.println(F(")"));
             // ----------
             out.println();
-            out.print(F("\t 'I': set sequencer interval 'i65535' ("));
+            out.print(F("\t 'u': set sequencer interval 'u65535' ("));
             out.print(effe::sequencer_interval);
             out.print(F(")"));
+            out.print(F("\t 'U': set calculate interval 'U65535' ("));
+            out.print(effe::calculate_interval);
+            out.println(F(")"));
             out.println();
             out.print(F("\t 'v': set effect value_low 'v65535' ("));
             out.print(effe::value_low);
@@ -544,7 +547,7 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
             dmx_handling::serial_out_interval = value;
         } break;
         // ------------------------------------------
-        case 'I': {
+        case 'u': {
             out.print(F("\t set sequencer interval "));
             // convert part of string to int
             // (up to first char that is not a number)
@@ -553,6 +556,14 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
             out.print(value);
             out.println();
             effe::sequencer_interval = value;
+        } break;
+        case 'U': {
+            out.print(F("\t set calculate interval "));
+            uint8_t command_offset = 1;
+            uint16_t value = atoi(&command[command_offset]);
+            out.print(value);
+            out.println();
+            effe::calculate_interval = value;
         } break;
         case 'v': {
             out.print(F("\t set effect value_low"));

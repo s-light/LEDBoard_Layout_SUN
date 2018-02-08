@@ -55,8 +55,8 @@ extern sequencer_modes sequencer_mode;
 extern uint16_t value_low;
 extern uint16_t value_high;
 
-extern uint32_t sequencer_timestamp_last;
 extern uint32_t sequencer_interval;
+extern uint32_t calculate_interval;
 
 extern int16_t sequencer_current_step;
 extern uint8_t sequencer_direction_forward;

@@ -41,6 +41,8 @@ uint16_t value_high = 1000;
 
 uint32_t sequencer_timestamp_last = millis();
 uint32_t sequencer_interval = 1000;
+uint32_t calculate_timestamp_last = millis();
+uint32_t calculate_interval = 100;
 
 int16_t sequencer_current_step = 0;
 uint8_t sequencer_direction_forward = true;
@@ -1024,7 +1026,11 @@ void calculate_step_next() {
 void update() {
     if (sequencer_mode != sequencer_OFF) {
         // update as often as possible
-        calculate_step();
+        // calculate_step();
+        if ((millis() - calculate_timestamp_last) > calculate_interval) {
+            calculate_timestamp_last =  millis();
+            calculate_step();
+        }
         // onlny switch to next step if time is over
         if ((millis() - sequencer_timestamp_last) > sequencer_interval) {
             sequencer_timestamp_last =  millis();
