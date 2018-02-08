@@ -389,33 +389,15 @@ void calculate_step__spiral_next() {
 
 void calculate_step__horizontal() {
     // Serial.println("calculate_step__horizontal: ");
-
-    for (size_t column = 0; column < LEDBoard::leds_per_row; column++) {
-        for (size_t row = 0; row < LEDBoard::leds_per_column; row++) {
-            uint8_t pixel = LEDBoard::channel_position_map[column][row];
-            uint8_t ch = pixel * 3;
-
-            // tail
-            int8_t tail_step = column - sequencer_current_step;
-            tail_step = tail_water_count - tail_step;
-            // if (!sequencer_direction_forward) {
-            //     // change tail direction
-            //     tail_step = tail_count - tail_step;
-            // }
-            //
-            // add offset
-            // ch = ch_offset + ch;
-
-            if ((tail_step >= 0) && (tail_step < tail_water_count)) {
-                LEDBoard::tlc.setChannel(ch + 0, tail_water[tail_step][0]);
-                LEDBoard::tlc.setChannel(ch + 1, tail_water[tail_step][1]);
-                LEDBoard::tlc.setChannel(ch + 2, tail_water[tail_step][2]);
-            } else {
-                // set pixel to low
-                LEDBoard::tlc.setChannel(ch + 0, 0);
-                LEDBoard::tlc.setChannel(ch + 1, 0);
-                LEDBoard::tlc.setChannel(ch + 2, 0);
-            }
+    for (size_t ch = 0; ch < LEDBoard::colorchannels_per_board; ch += 3) {
+        if (ch == 0) {
+            LEDBoard::tlc.setChannel(ch + 0, sequencer_color[0]);
+            LEDBoard::tlc.setChannel(ch + 1, sequencer_color[1]);
+            LEDBoard::tlc.setChannel(ch + 2, sequencer_color[2]);
+        } else {
+            LEDBoard::tlc.setChannel(ch + 0, 0);
+            LEDBoard::tlc.setChannel(ch + 1, 0);
+            LEDBoard::tlc.setChannel(ch + 2, 0);
         }
     }
 }
@@ -428,10 +410,10 @@ void calculate_step__horizontal_next() {
     // if (sequencer_current_step >= LEDBoard::leds_per_column) {
     //     sequencer_current_step = 0;
     // }
-    if (sequencer_current_step > 0) {
-        sequencer_current_step = sequencer_current_step - 1;
-    } else {
-        sequencer_current_step = LEDBoard::leds_per_column-1;
+    // sequencer_current_step = 1;
+    sequencer_current_step = sequencer_current_step + 1;
+    if (sequencer_current_step >= LEDBoard::colorchannels_per_board) {
+        sequencer_current_step = 0;
     }
     // if (sequencer_direction_forward) {
     //     // forward

@@ -339,6 +339,9 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
             out.println(F("\t 'x': tests"));
             out.println();
             // out.println(F("\t 'A': Show 'HelloWorld' "));
+            out.println(F("\t current sequencer: '"));
+            out.print(effect_engine::sequencer_mode);
+            out.println(F("'"));
             out.println(F("\t 'o': sequencer off"));
             out.println(F("\t 'a': toggle CHANNELCHECK"));
             out.println(F("\t 'A': toggle SPIRAL"));
@@ -723,8 +726,7 @@ void button_onEvent(slight_ButtonInput *pInstance, byte bEvent) {
                 effe::sequencer_interval = 500;
                 dmx_handling::effect_control = true;
                 Serial.print(F("\t sequencer_mode: CHANNELCHECK\n"));
-            }
-            else {
+            } else {
                 effe::sequencer_off();
                 effe::sequencer_mode = effe::sequencer_OFF;
                 Serial.print(F("\t sequencer_mode: OFF\n"));
@@ -771,10 +773,10 @@ void button_onEvent(slight_ButtonInput *pInstance, byte bEvent) {
                     Serial.print(F("\t sequencer_mode: High Power Line\n"));
                 } break;
                 case 7 : {
-                    effe::sequencer_mode = effe::sequencer_SPIRAL2;
-                    effe::sequencer_interval = 50;
-                    dmx_handling::effect_control = false;
-                    Serial.print(F("\t sequencer_mode: SPIRAL 2boards\n"));
+                    effe::sequencer_mode = effe::sequencer_HORIZONTAL;
+                    effe::sequencer_interval = 1000;
+                    dmx_handling::effect_control = true;
+                    Serial.print(F("\t sequencer_mode: HORIZONTA = STATIC \n"));
                 } break;
             }
         } break;
