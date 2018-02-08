@@ -5,6 +5,16 @@
 
 ![Sun](photos/P1650166.JPG)
 
+<iframe
+    src="https://player.vimeo.com/video/253356118?byline=0&portrait=0"
+    width="800" height="450"
+    frameborder="0"
+    webkitallowfullscreen
+    mozallowfullscreen
+    allowfullscreen>
+</iframe>
+[Video: LEDBoard Layout Sun - first test](https://vimeo.com/253356118)
+
 ## arduino test sketch
 have a look at [sw/LEDBoard_HWTest_Sun](sw/LEDBoard_HWTest_Sun/readme.md)
 how to setup an arduino board to do basic testings for the completed sun.
