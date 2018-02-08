@@ -42,9 +42,11 @@ size_t values_dirty = 0b00000000;
 // int16_t values[values_count];
 uint8_t values[values_count];
 
+bool serial_out_enabled = false;
+uint32_t serial_out_timestamp_last = 0;
+uint16_t serial_out_interval = 1000;
 
-
-void handle_new_values();
+void handle_new_values(Print &out);
 
 size_t chname2chindex(channel_names name) {
     // return (name*2);
@@ -76,44 +78,30 @@ void print_values(Print &out) {
         values[ch_a_z],
         values[ch_heading],
         values[ch_temp]);
-    out.println(line);
+    out.print(line);
 }
 
-void print_values_raw(Print &out) {
+void print_raw(Print &out) {
     char line[100];
-    // snprintf(
-    //     line,
-    //     sizeof(line),
-    //     "[%3u, %3u, %3u, %3u, %3u, %3u, %3u, %3u,"
-    //     " %3u, %3u, %3u, %3u, %3u, %3u, %3u, %3u]",
-    //     DMXSerial.read(dmx_start_channel + 0),
-    //     DMXSerial.read(dmx_start_channel + 1),
-    //     DMXSerial.read(dmx_start_channel + 2),
-    //     DMXSerial.read(dmx_start_channel + 3),
-    //     DMXSerial.read(dmx_start_channel + 4),
-    //     DMXSerial.read(dmx_start_channel + 5),
-    //     DMXSerial.read(dmx_start_channel + 6),
-    //     DMXSerial.read(dmx_start_channel + 7),
-    //     DMXSerial.read(dmx_start_channel + 8),
-    //     DMXSerial.read(dmx_start_channel + 9),
-    //     DMXSerial.read(dmx_start_channel + 10),
-    //     DMXSerial.read(dmx_start_channel + 11),
-    //     DMXSerial.read(dmx_start_channel + 12),
-    //     DMXSerial.read(dmx_start_channel + 13),
-    //     DMXSerial.read(dmx_start_channel + 14),
-    //     DMXSerial.read(dmx_start_channel + 15));
     snprintf(
         line,
         sizeof(line),
-        "[%3u, %3u, %3u, %3u, %3u]",
-        DMXSerial.read(dmx_start_channel + 1),
-        DMXSerial.read(dmx_start_channel + 2),
-        DMXSerial.read(dmx_start_channel + 3),
-        DMXSerial.read(dmx_start_channel + 4),
-        DMXSerial.read(dmx_start_channel + 5),
-        DMXSerial.read(dmx_start_channel + 6));
-    out.println(line);
+        "[%3u, %3u, %3u, %3u, %3u, %3u, %3u, %3u, %3u, %3u]",
+        DMXSerial.read(1),
+        DMXSerial.read(2),
+        DMXSerial.read(3),
+        DMXSerial.read(4),
+        DMXSerial.read(5),
+        DMXSerial.read(6),
+        DMXSerial.read(7),
+        DMXSerial.read(8),
+        DMXSerial.read(9),
+        DMXSerial.read(10));
+    out.print(line);
 }
+
+
+
 
 
 
@@ -203,6 +191,8 @@ void update(Print &out) {
         }
         if (values_dirty) {
             digitalWrite(dmx_pin_newdata_led, LOW);
+            // print_values(out);
+            // out.println();
             handle_new_values(out);
         } else {
             digitalWrite(dmx_pin_newdata_led, HIGH);
@@ -211,6 +201,17 @@ void update(Print &out) {
         digitalWrite(dmx_pin_valid_led, HIGH);
     }
 
+    if (serial_out_enabled) {
+        if (
+            (millis() - serial_out_timestamp_last) > serial_out_interval
+        ) {
+            serial_out_timestamp_last =  millis();
+            // print_values(out);
+            // out.println();
+            print_raw(out);
+            out.println();
+        }
+    }
     // combine 16bit value
     // uiDMXValue_Pan  = DMXSerial.read(11) << 8;
     // uiDMXValue_Pan  = uiDMXValue_Pan | DMXSerial.read(12);
@@ -291,14 +292,16 @@ void handle_new_values(Print &out) {
             bitClear(values_dirty, ch_a_x);
             bitClear(values_dirty, ch_heading);
             // handle
-            out.println("map_as_color()");
+            print_raw(out);
+            out.println(" map_as_color()");
             map_as_color();
         }
         if (bitRead(values_dirty, ch_a_y)) {
             // clear
             bitClear(values_dirty, ch_a_y);
             // handle
-            out.println("map_as_sequencer_interval()");
+            print_raw(out);
+            out.println(" map_as_sequencer_interval()");
             map_as_sequencer_interval();
         }
     }

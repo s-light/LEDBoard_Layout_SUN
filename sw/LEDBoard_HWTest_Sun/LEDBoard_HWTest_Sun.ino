@@ -292,7 +292,9 @@ void handle_debugout_dmx(Print &out) {
         ) {
             debugOut_dmx_TimeStamp_LastAction = millis();
             dmx_handling::print_values(out);
-            dmx_handling::print_values_raw(out);
+            out.println();
+            // dmx_handling::print_raw(out);
+            // out.println();
         }
     }
 }
@@ -352,6 +354,13 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
             out.print(F("\t 'R': toggle debugOut_dmx_Enabled ("));
             out.print(debugOut_dmx_Enabled);
             out.println(F(")"));
+            out.print(F("\t 'e': toggle dmx serial out ("));
+            out.print(dmx_handling::serial_out_enabled);
+            out.println(F(")"));
+            out.print(F("\t 'E': set dmx serial out interval 'i65535' ("));
+            out.print(dmx_handling::serial_out_interval);
+            out.println(F(")"));
+            // ----------
             out.println();
             out.print(F("\t 'I': set sequencer interval 'i65535' ("));
             out.print(effe::sequencer_interval);
@@ -515,6 +524,21 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
             debugOut_dmx_Enabled = !debugOut_dmx_Enabled;
             out.print(debugOut_dmx_Enabled);
             out.println();
+        } break;
+        case 'e': {
+            out.println(F("\t toggle dmx serial out"));
+            dmx_handling::serial_out_enabled =
+                !dmx_handling::serial_out_enabled;
+        } break;
+        case 'E': {
+            out.print(F("\t set dmx serial out interval "));
+            // convert part of string to int
+            // (up to first char that is not a number)
+            uint8_t command_offset = 1;
+            uint16_t value = atoi(&command[command_offset]);
+            out.print(value);
+            out.println();
+            dmx_handling::serial_out_interval = value;
         } break;
         // ------------------------------------------
         case 'I': {
@@ -988,7 +1012,7 @@ void loop() {
     // lowbat_check();
 
     effect_engine::update();
-    dmx_handling::update();
+    dmx_handling::update(DebugOut);
 
     handle_debugout(DebugOut);
     handle_debugout_dmx(DebugOut);

@@ -45,6 +45,9 @@ const uint8_t dmx_pin_valid_led = 13;
 // timeout in milliseconds
 const uint32_t dmx_valid_timeout = 1000;
 
+extern bool serial_out_enabled;
+extern uint16_t serial_out_interval;
+
 enum channel_names {
     ch_a_x,
     ch_a_y,
@@ -70,10 +73,10 @@ extern bool effect_control;
 
 size_t chname2chindex(channel_names name);
 void print_values(Print &out);
-void print_values_raw(Print &out);
+void print_raw(Print &out);
 
 void setup(Print &out);
-void update();
+void update(Print &out);
 
 }  // namespace dmx_handling
 
