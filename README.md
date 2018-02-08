@@ -5,14 +5,6 @@
 
 ![Sun](photos/P1650166.JPG)
 
-<iframe
-    src="https://player.vimeo.com/video/253356118?byline=0&portrait=0"
-    width="800" height="450"
-    frameborder="0"
-    webkitallowfullscreen
-    mozallowfullscreen
-    allowfullscreen>
-</iframe>
 [Video: LEDBoard Layout Sun - first test](https://vimeo.com/253356118)
 
 ## arduino test sketch
