@@ -1040,4 +1040,45 @@ void update() {
 }
 
 
+void test_update(Print &out) {
+    out.println(F("Test how long one update round takes:"));
+
+    sequencer_mode = sequencer_SPIRAL;
+    Serial.println(F("\t sequencer_mode: SPIRAL"));
+    // sequencer_interval = 100;
+    // Serial.println(F("\t sequencer_interval: 100\n"));
+    dmx_handling::effect_control = false;
+    Serial.println(F("\t effect_control = false"));
+
+    uint32_t start_calc = 0;
+    uint32_t start_next = 0;
+    uint32_t stop_calc = 0;
+    uint32_t stop_next = 0;
+
+    Serial.println(F("\t start..."));
+    start_calc = micros();
+    calculate_step();
+    stop_calc = micros();
+    start_next = micros();
+    calculate_step_next();
+    stop_next = micros();
+    Serial.println(F("\t done."));
+    Serial.println(F("\t timmings:"));
+    char line[100];
+    snprintf(line, sizeof(line),
+        "\t calculate_step: %11luus = %11lums",
+        (stop_calc - start_calc),
+        ((stop_calc - start_calc) / 1000) );
+    Serial.println(line);
+    snprintf(line, sizeof(line),
+        "\t calculate next: %11luus = %11lums",
+        (stop_next - start_next),
+        ((stop_next - start_next) / 1000) );
+    Serial.println(line);
+
+
+    out.println(F("|____ Test done."));
+}
+
+
 }  // namespace effect_engine

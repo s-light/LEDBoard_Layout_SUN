@@ -33,6 +33,7 @@
 #include <Arduino.h>
 
 #include "LEDBoard.h"
+#include "dmx_handling.h"
 
 #include <FastLED.h>
 
@@ -120,6 +121,8 @@ void sequencer_off();
 void calculate_step();
 
 void update();
+
+void test_update(Print &out);
 
 // void set_hsv_color(uint16_t hue, uint16_t saturation, uint16_t value);
 void set_hsv_color(uint8_t hue, uint8_t saturation, uint8_t value);

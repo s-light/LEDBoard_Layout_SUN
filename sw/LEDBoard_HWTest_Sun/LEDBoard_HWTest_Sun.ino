@@ -337,6 +337,7 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
             out.println(F("\t 'y': toggle DebugOut livesign print"));
             out.println(F("\t 'Y': toggle DebugOut livesign LED"));
             out.println(F("\t 'x': tests"));
+            out.println(F("\t 'X': test timings"));
             out.println();
             // out.println(F("\t 'A': Show 'HelloWorld' "));
             out.println(F("\t current sequencer: '"));
@@ -401,7 +402,6 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
             out.println(debugOut_LiveSign_LED_Enabled);
         } break;
         case 'x': {
-            // get state
             out.println(F("__________"));
             out.println(F("Tests:"));
 
@@ -424,6 +424,9 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
             out.println();
 
             out.println(F("__________"));
+        } break;
+        case 'X': {
+            effect_engine::test_update(out);
         } break;
         //---------------------------------------------------------------------
         // case 'A': {

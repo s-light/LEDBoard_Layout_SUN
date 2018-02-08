@@ -39,7 +39,7 @@ Tlc59711 tlc(tlc_chips);
 bool output_enabled = true;
 
 
-void setup(const Print &out) {
+void setup(Print &out) {
     out.println(F("setup LEDBoards:"));
 
     out.println(F("\t init tlc lib"));

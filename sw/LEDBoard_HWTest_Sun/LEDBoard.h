@@ -85,7 +85,7 @@ namespace LEDBoard {
 
     extern bool output_enabled;
 
-    void setup(const Print &out);
+    void setup(Print &out);
 
 }  // namespace LEDBoard
 
