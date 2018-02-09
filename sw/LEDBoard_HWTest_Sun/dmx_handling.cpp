@@ -259,9 +259,10 @@ void map_as_sequencer_interval() {
     //     constrain(values[ch_a_y], -15000, 15000),
     //     -15000, 15000,
     //     0, 2000);
+    // constrain min to 1 to avoid dmx receive 0 glitches...
     effect_engine::sequencer_interval = map(
-        values[ch_a_y],
-        0, 255,
+        constrain(values[ch_a_y], 1, 255),
+        1, 255,
         effect_engine::calculate_interval, 2000);
 }
 
