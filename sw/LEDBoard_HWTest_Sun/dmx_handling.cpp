@@ -262,7 +262,7 @@ void map_as_sequencer_interval() {
     effect_engine::sequencer_interval = map(
         values[ch_a_y],
         0, 255,
-        0, 2000);
+        effect_engine::calculate_interval, 2000);
 }
 
 // private functions
