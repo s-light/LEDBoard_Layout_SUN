@@ -1045,12 +1045,13 @@ void test_update(Print &out) {
     out.println(F("Test how long one update round takes:"));
 
     sequencer_current_step = 15;
-    sequencer_mode = sequencer_SUN_WAVE_BLUE;
-    Serial.println(F("\t sequencer_mode: sequencer_SUN_WAVE_BLUE"));
-    // sequencer_interval = 100;
-    // Serial.println(F("\t sequencer_interval: 100\n"));
-    dmx_handling::effect_control = false;
-    Serial.println(F("\t effect_control = false"));
+    Serial.println(F("\t sequencer_current_step: 15"));
+    // sequencer_mode = sequencer_SUN_WAVE_BLUE;
+    // Serial.println(F("\t sequencer_mode: sequencer_SUN_WAVE_BLUE"));
+    // // sequencer_interval = 100;
+    // // Serial.println(F("\t sequencer_interval: 100\n"));
+    // dmx_handling::effect_control = false;
+    // Serial.println(F("\t effect_control = false"));
 
     uint32_t start_time = 0;
     uint32_t stop_time = 0;
@@ -1065,16 +1066,37 @@ void test_update(Print &out) {
     // stop_time = micros();
     // duration = (stop_time - start_time);
     // snprintf(line, sizeof(line),
-    //     "\t calculate_step: %11luus = %11lums",
+    //     "\t calculate_step:\n%11luus = %11lums",
+    //     duration, (duration / 1000));
+    // Serial.println(line);
+
+    // start_time = micros();
+    // calculate_step_singleboard();
+    // stop_time = micros();
+    // duration = (stop_time - start_time);
+    // snprintf(line, sizeof(line),
+    //     "\t calculate_step_singleboard():\n\t %11luus = %11lums",
     //     duration, (duration / 1000));
     // Serial.println(line);
 
     start_time = micros();
-    calculate_step_singleboard();
+    for (
+        size_t ch = 0;
+        ch < (LEDBoard::colorchannels_per_board * LEDBoard::boards_count);
+        ch++
+    ) {
+        if (ch == (uint8_t)sequencer_current_step) {
+            // set pixel to high
+            LEDBoard::tlc.setChannel(ch, value_high);
+        } else {
+            // set pixel to low
+            LEDBoard::tlc.setChannel(ch, value_low);
+        }
+    }
     stop_time = micros();
     duration = (stop_time - start_time);
     snprintf(line, sizeof(line),
-        "\t calculate_step_singleboard(): %11luus = %11lums",
+        "\t for loop - set all Channels:\n\t %11luus = %11lums",
         duration, (duration / 1000));
     Serial.println(line);
 
@@ -1083,7 +1105,7 @@ void test_update(Print &out) {
     stop_time = micros();
     duration = (stop_time - start_time);
     snprintf(line, sizeof(line),
-        "\t tlc.write(): %11luus = %11lums",
+        "\t tlc.write():\n\t %11luus = %11lums",
         duration, (duration / 1000));
     Serial.println(line);
 
@@ -1092,7 +1114,7 @@ void test_update(Print &out) {
     stop_time = micros();
     duration = (stop_time - start_time);
     snprintf(line, sizeof(line),
-        "\t calculate_next: %11luus = %11lums",
+        "\t calculate_step_next:\n\t %11luus = %11lums",
         duration, (duration / 1000));
     Serial.println(line);
 
