@@ -4,7 +4,9 @@
 
 ![Mounting Sun](mounting_sun/mounting_sun.svg)
 
-full design: [mounting_sun.svg](mounting_sun/mounting_sun.svg)
+full design: [mounting_sun.svg](mounting_sun/mounting_sun.step)
+
+this is now version 2 - a redesign - this time made in FreeCAD v0.17 completle in 3d.
 
 ## parts-list
 
