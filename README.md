@@ -38,7 +38,7 @@ SW is a big TODO :-)
 
 
 ## mounting sun
-in [mounting_sun.md](mounting_sun/readme.md) are all information
+in [mounting_sun/readme.md](mounting_sun/readme.md) are all information
 regarding the Hardware / frame to build the sun.
 
 ![Mounting Sun](mounting_sun/mounting_sun.svg)
