@@ -2,11 +2,11 @@
 
 # Mounting Sun
 
-![Mounting Sun](mounting_sun/mounting_sun.svg)
+![Mounting Sun](mounting_sun.png)
 
-full design: [mounting_sun.svg](mounting_sun/mounting_sun.step)
+full design: [mounting_sun.step ](mounting_sun.step)
 
-this is now version 2 - a redesign - this time made in FreeCAD v0.17 completle in 3d.
+this is now version 2 - a redesign - this time made in FreeCAD v0.17 (daily) completely in 3d.
 
 ## parts-list
 
