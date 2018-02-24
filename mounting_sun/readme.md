@@ -11,15 +11,20 @@ this is now version 2 - a redesign - this time made in FreeCAD v0.17 (daily) com
 ## parts-list
 
 ### laser-cutting
-- Wood (5mm thickness)
-  - 6x [mounting_sun_arm_wood.svg](mounting_sun/mounting_sun_arm_wood.svg)
-  - 1x [mounting_sun_center_wood.svg](mounting_sun/mounting_sun_center_wood.svg)
-  - 6x [mounting_sun_connectors_wood.svg](mounting_sun/mounting_sun_connectors_wood.svg)
+- Pine-Plywood (>=4mm thickness)
+  - 6x [arm/arm_base.svg](arm/arm_base.svg)
+  - 6x [arm/arm_socket.svg](arm/arm_socket.svg)
+  - 12x [arm/arm_lock.svg](arm/arm_lock.svg)
+  - 6x [connector/socket_connector_40mm.svg](connector/socket_connector_40mm.svg)
+  - 6x [center/center_lock.svg](center/center_lock.svg)
+  - 1x [center/center_base.svg](center/center_base.svg)
+  - 1x [center/center_socket.svg](center/center_socket.svg)
 - [Plexiglas WH02 (3mm)](https://www.plexiglas-shop.com/DE/de/einseitig-satiniert-d3k0ydk22v3/plexiglas-satinice-weiss-wh02-sc-1jmuadz2jyj~p.html?know=search%3AWH02)
-  - 6x [mounting_sun_arm_acryl.svg](mounting_sun/mounting_sun_arm_acryl.svg)
-  - 1x [mounting_sun_center_acryl.svg](mounting_sun/mounting_sun_center_acryl.svg)
+  - 6x [arm/arm_diffusor.svg](arm/arm_diffusor.svg)
+  - 1x [center/center_diffusor.svg](center/center_diffusor.svg)
 
 ### screws for LEDBoard mounting:
+TODO: recalculate screws...
 - 38*2*2 (=152)x [cylinder head - screw M3x10mm](https://www.wegertseder.com/ArticleDetails.aspx?ANR=2588-412)
 - 38*2 (=76) [spacer M3x15mm](https://www.reichelt.de/index.html?ARTICLE=7120&GROUPID=7758&artnr=DI+15MM)
 
