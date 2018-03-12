@@ -4,7 +4,7 @@
 
 ![Mounting Sun](mounting_sun.png)
 
-full design: [mounting_sun.step ](mounting_sun.step)
+full design: [mounting_sun.step](mounting_sun.step)
 
 this is now version 2 - a redesign - this time made in FreeCAD v0.17 (daily) completely in 3d.
 
