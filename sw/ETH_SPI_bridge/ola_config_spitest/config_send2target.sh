@@ -1,9 +1,12 @@
 #!/bin/bash
 
 rootfs=~/mydata/acme/arietta/debian_8.10_jessie/target-rootfs
-target_config="$rootfs/home/light/.ola/*"
+target_config="$rootfs/home/light/.ola/"
 
 # update local image
-cp "./target_config/*" $target_config
+echo "update local target rootfs"
+cp target_config/* $target_config
+
 # copy to remote device
-scp  $target_config "light@arietta.local:/home/light/.ola/"
+echo "copy to remote target"
+scp -v $target_config* "light@arietta.local:/home/light/.ola/"
