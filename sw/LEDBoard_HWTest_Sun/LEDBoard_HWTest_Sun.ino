@@ -460,7 +460,7 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
         } break;
         case 'B': {
             out.println(F("\t toggle SUN SPIRAL:"));
-            effe::toggle_sequencer(out, effe::sequencer_SPIRAL, 100);
+            effe::toggle_sequencer(out, effe::sequencer_SUN_SPIRAL, 100);
         } break;
         case 'c': {
             out.println(F("\t toggle HORIZONTAL:"));
@@ -504,7 +504,7 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
         } break;
         // ------------------------------------------
         case 's': {
-            out.print(F("\t sequencer single step  "));
+            out.println(F("\t sequencer single step  "));
             effect_engine::calculate_step();
             effect_engine::calculate_step_next();
         } break;

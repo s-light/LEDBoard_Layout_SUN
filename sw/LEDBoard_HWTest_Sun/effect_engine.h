@@ -66,23 +66,43 @@ extern uint8_t sequencer_direction_forward;
 
 extern uint16_t sequencer_color[];
 
-const uint8_t tail_orange_count = 9;
-const uint16_t tail_orange[tail_orange_count][LEDBoard::colors_per_led] {
+const uint8_t tail_simple_count = 3;
+const uint16_t tail_simple[tail_simple_count][LEDBoard::colors_per_led] {
     //  red, green,   blue
-    { 55000, 20000,      0},
-    { 20000,  7200,      0},
-    {  8000,  2900,      0},
-    {  3000,  1000,      0},
-    {  1000,   360,      0},
-    {   500,   200,      0},
-    {    50,    20,      0},
-    {     5,     2,      0},
+    {     0,     0,     0},
+    { 55000,     0, 20000},
     {     0,     0,     0},
 };
 
-const uint8_t tail_water_count = 7;
+const uint8_t tail_pink_count = 5;
+const uint16_t tail_pink[tail_pink_count][LEDBoard::colors_per_led] {
+    //  red, green,   blue
+    {     0,     0,     0},
+    {  5500,     0,  2000},
+    { 55000,     0, 20000},
+    {  5500,     0,  2000},
+    {     0,     0,     0},
+};
+
+const uint8_t tail_orange_count = 10;
+const uint16_t tail_orange[tail_orange_count][LEDBoard::colors_per_led] {
+    //  red, green,   blue
+    {     0,     0,     0},
+    { 55000, 20000,     0},
+    { 20000,  7200,     0},
+    {  8000,  2900,     0},
+    {  3000,  1000,     0},
+    {  1000,   360,     0},
+    {   500,   200,     0},
+    {    50,    20,     0},
+    {     5,     2,     0},
+    {     0,     0,     0},
+};
+
+const uint8_t tail_water_count = 8;
 const uint16_t tail_water[tail_water_count][LEDBoard::colors_per_led] {
     //  red, green,   blue
+    {     0,     0,     0},
     {     0, 20000, 60000},
     {     0,  7000, 20000},
     {     0,  2000,  6000},
@@ -92,9 +112,10 @@ const uint16_t tail_water[tail_water_count][LEDBoard::colors_per_led] {
     {     0,     0,     0},
 };
 
-const uint8_t tail_sun_count = 11;
+const uint8_t tail_sun_count = 12;
 const uint16_t tail_sun[tail_sun_count][LEDBoard::colors_per_led] {
     //  red, green,   blue
+    {   600,   180,     0},
     {  6000,  1800,     0},
     {  3000,   900,     0},
     {  1000,   300,     0},
