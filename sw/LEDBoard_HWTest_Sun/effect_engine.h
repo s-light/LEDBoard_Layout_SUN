@@ -65,7 +65,6 @@ extern uint8_t sequencer_direction_forward;
 
 extern uint16_t sequencer_color[];
 
-
 const uint8_t tail_orange_count = 9;
 const uint16_t tail_orange[tail_orange_count][LEDBoard::colors_per_led] {
     //  red, green,   blue
@@ -92,12 +91,9 @@ const uint16_t tail_water[tail_water_count][LEDBoard::colors_per_led] {
     {     0,     0,     0},
 };
 
-const uint8_t tail_sun_count = 14;
+const uint8_t tail_sun_count = 11;
 const uint16_t tail_sun[tail_sun_count][LEDBoard::colors_per_led] {
     //  red, green,   blue
-    { 60000, 18000,     0},
-    { 30000,  9000,     0},
-    { 10000,  3000,     0},
     {  6000,  1800,     0},
     {  3000,   900,     0},
     {  1000,   300,     0},
@@ -110,6 +106,24 @@ const uint16_t tail_sun[tail_sun_count][LEDBoard::colors_per_led] {
     {   600,   180,     0},
     {   600,   180,     0},
 };
+// const uint8_t tail_sun_count = 14;
+// const uint16_t tail_sun[tail_sun_count][LEDBoard::colors_per_led] {
+//     //  red, green,   blue
+//     { 60000, 18000,     0},
+//     { 30000,  9000,     0},
+//     { 10000,  3000,     0},
+//     {  6000,  1800,     0},
+//     {  3000,   900,     0},
+//     {  1000,   300,     0},
+//     {  1000,   300,     0},
+//     {   600,   180,     0},
+//     {   600,   180,     0},
+//     {   600,   180,     0},
+//     {   600,   180,     0},
+//     {   600,   180,     0},
+//     {   600,   180,     0},
+//     {   600,   180,     0},
+// };
 
 
 

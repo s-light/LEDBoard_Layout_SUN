@@ -322,71 +322,70 @@ void calculate_step__channelcheck_next() {
 }
 
 
-void calculate_step__spiral() {
+void calculate_step__spiral(const uint8_t board_start_index = 0) {
     // Serial.println("calculate_step__spiral: ");
 
-    const uint8_t spiral_order
-        [LEDBoard::leds_per_column][LEDBoard::leds_per_row] {
+    const uint8_t column_count = LEDBoard::leds_per_row*1;
+    const uint8_t row_count = LEDBoard::leds_per_column*1;
+    const uint8_t effect_order[row_count][column_count] {
         { 0,  1,  2,  3},
         {11, 12, 13,  4},
         {10, 15, 14,  5},
         { 9,  8,  7,  6},
     };
 
-    for (size_t column = 0; column < LEDBoard::leds_per_column; column++) {
-        for (size_t row = 0; row < LEDBoard::leds_per_row; row++) {
-            uint8_t pixel = LEDBoard::channel_position_map[column][row];
-            uint8_t ch = pixel * 3;
+    const uint8_t tail_count = 3;
+    uint16_t tail[tail_count][LEDBoard::colors_per_led] {
+        //  red, green,   blue
+        {     0, 65000, 65000},
+        {     0,     0,     0},
+    };
+    memcpy(
+        tail[0],
+        sequencer_color,
+        sizeof(uint16_t) * LEDBoard::colors_per_led);
 
-            // set pixel to low
-            // values[ch + 0] = value_low;
-            // values[ch + 1] = value_low;
-            // values[ch + 2] = value_low;
-
-            if (spiral_order[column][row] == (uint8_t)sequencer_current_step) {
-                // set pixel to high
-                LEDBoard::tlc.setChannel(ch + 0, sequencer_color[0]);
-                LEDBoard::tlc.setChannel(ch + 1, sequencer_color[1]);
-                LEDBoard::tlc.setChannel(ch + 2, sequencer_color[2]);
-            } else {
-                // set pixel to low
-                LEDBoard::tlc.setChannel(ch + 0, 0);
-                LEDBoard::tlc.setChannel(ch + 1, 0);
-                LEDBoard::tlc.setChannel(ch + 2, 0);
-            }
-        }
-    }
+    calculate_step__effectmap(
+        &effect_order[0][0],
+        row_count,
+        column_count,
+        board_start_index,
+        tail,
+        tail_count);
 }
 
-void calculate_step__spiral_next() {
+void calculate_step__spiral_next(uint8_t tail_count = 2) {
     // prepare next step
-    // Serial.print("sequencer_current_step: ");
-    // Serial.println(sequencer_current_step);
+    Serial.print("sequencer_current_step: ");
+    Serial.println(sequencer_current_step);
+    const int8_t effect_step_count = (
+      (LEDBoard::leds_per_column * LEDBoard::leds_per_row) - 1);
+
+      // with direction change
     if (sequencer_direction_forward) {
         // forward
-        if (
-            sequencer_current_step >=
-            ((LEDBoard::leds_per_column * LEDBoard::leds_per_row) - 1)
-        ) {
-            sequencer_current_step = sequencer_current_step - 1;
+        if (sequencer_current_step > (effect_step_count)) {
+            sequencer_current_step = sequencer_current_step + 1;
             sequencer_direction_forward = false;
-            // Serial.println("direction switch to backwards");
+            Serial.println("direction switch to backwards");
         } else {
             sequencer_current_step = sequencer_current_step + 1;
         }
     } else {
         // backwards
-        if (sequencer_current_step == 0) {
-            sequencer_current_step = sequencer_current_step + 1;
+        if (sequencer_current_step <= 0) {
+            sequencer_current_step = sequencer_current_step - 1;
             sequencer_direction_forward = true;
-            // Serial.println("direction switch to forward");
+            Serial.println("direction switch to forward");
         } else {
             sequencer_current_step = sequencer_current_step - 1;
         }
     }
-    // Serial.print("next step: ");
-    // Serial.println(sequencer_current_step);
+
+    Serial.print("next step: ");
+    Serial.println(sequencer_current_step);
 }
+
 
 
 void calculate_step__horizontal() {
@@ -443,7 +442,7 @@ void calculate_step__horizontal_next() {
 
 
 void calculate_step__hpline() {
-    // Serial.println("calculate_step__spiral: ");
+    // Serial.println("calculate_step__hpline: ");
 
     for (size_t column = 0; column < LEDBoard::leds_per_column; column++) {
         uint8_t pixel = LEDBoard::channel_position_map[0][column];
@@ -590,6 +589,7 @@ void calculate_step__wave4(
     bool flag_horizontal = false,
     const uint16_t tail[][3] = tail_water,
     const uint8_t tail_count = tail_water_count
+    // const int8_t step_offset = 0
 ) {
     const uint8_t row_count_vertical = LEDBoard::leds_per_column*4;
     const uint8_t column_count_vertical = LEDBoard::leds_per_row;
@@ -620,10 +620,10 @@ void calculate_step__wave4(
     const uint8_t column_count_horizontal = LEDBoard::leds_per_row*4;
     const uint8_t effect_order_horizontal
         [row_count_horizontal][column_count_horizontal] {
-        { 0,  0,  0,  0,    0,  0,  0,  0,    0,  0,  0,  0,    0,  0,  0,  0},
-        { 1,  1,  1,  1,    1,  1,  1,  1,    1,  1,  1,  1,    1,  1,  1,  1},
-        { 2,  2,  2,  2,    2,  2,  2,  2,    2,  2,  2,  2,    2,  2,  2,  2},
-        { 3,  3,  3,  3,    3,  3,  3,  3,    3,  3,  3,  3,    3,  3,  3,  3},
+        { 0, 1, 2, 3,   4, 5, 6, 7,   8, 9, 10, 11,   12, 13, 14, 15},
+        { 0, 1, 2, 3,   4, 5, 6, 7,   8, 9, 10, 11,   12, 13, 14, 15},
+        { 0, 1, 2, 3,   4, 5, 6, 7,   8, 9, 10, 11,   12, 13, 14, 15},
+        { 0, 1, 2, 3,   4, 5, 6, 7,   8, 9, 10, 11,   12, 13, 14, 15},
     };
 
     if (flag_horizontal) {
@@ -649,13 +649,13 @@ void calculate_step__wave4_next(uint8_t tail_count = tail_water_count) {
     // prepare next step
     // Serial.print("sequencer_current_step: ");
     // Serial.println(sequencer_current_step);
-    const uint8_t effect_step_count = (16);
+    const int8_t effect_step_count = (16);
     // without direction change
     // 'forward'
     if (sequencer_current_step < effect_step_count) {
         sequencer_current_step = sequencer_current_step + 1;
     } else {
-        sequencer_current_step = (tail_count*-1)+1;
+        sequencer_current_step = (tail_count * -1) + 1;
         // Serial.println("line4_next: start new itteration");
     }
     // backwards
@@ -697,30 +697,34 @@ void calculate_step__wave4_next(uint8_t tail_count = tail_water_count) {
 }
 
 
-void calculate_step__wave_center2x4(
+void calculate_step__wave_center_outerring(
     const uint8_t board_start_index = 0,
     const uint16_t tail[][3] = tail_water,
     const uint8_t tail_count = tail_water_count
 ) {
-    // const uint8_t row_count = LEDBoard::leds_per_column;
-    // const uint8_t column_count = LEDBoard::leds_per_row*8;
-    // const uint8_t effect_order[row_count][column_count] {
-    //     { 0,  0,  0,  0,    0,  0,  0,  0,    0,  0,  0,  0,    0,  0,  0,  0,    3,  3,  3,  3,    3,  3,  3,  3,    3,  3,  3,  3,    3,  3,  3,  3},
-    //     { 1,  1,  1,  1,    1,  1,  1,  1,    1,  1,  1,  1,    1,  1,  1,  1,    2,  2,  2,  2,    2,  2,  2,  2,    2,  2,  2,  2,    2,  2,  2,  2},
-    //     { 2,  2,  2,  2,    2,  2,  2,  2,    2,  2,  2,  2,    2,  2,  2,  2,    1,  1,  1,  1,    1,  1,  1,  1,    1,  1,  1,  1,    1,  1,  1,  1},
-    //     { 3,  3,  3,  3,    3,  3,  3,  3,    3,  3,  3,  3,    3,  3,  3,  3,    0,  0,  0,  0,    0,  0,  0,  0,    0,  0,  0,  0,    0,  0,  0,  0},
-    // };
-    const uint8_t row_count = LEDBoard::leds_per_column*2;
-    const uint8_t column_count = LEDBoard::leds_per_row*4;
-    const uint8_t effect_order[row_count][column_count] {
-        { 0,  0,  0,  0,    0,  0,  0,  0,    0,  0,  0,  0,    0,  0,  0,  0},
-        { 1,  1,  1,  1,    1,  1,  1,  1,    1,  1,  1,  1,    1,  1,  1,  1},
-        { 2,  2,  2,  2,    2,  2,  2,  2,    2,  2,  2,  2,    2,  2,  2,  2},
-        { 3,  3,  3,  3,    3,  3,  3,  3,    3,  3,  3,  3,    3,  3,  3,  3},
-        { 3,  3,  3,  3,    3,  3,  3,  3,    3,  3,  3,  3,    3,  3,  3,  3},
-        { 2,  2,  2,  2,    2,  2,  2,  2,    2,  2,  2,  2,    2,  2,  2,  2},
-        { 1,  1,  1,  1,    1,  1,  1,  1,    1,  1,  1,  1,    1,  1,  1,  1},
-        { 0,  0,  0,  0,    0,  0,  0,  0,    0,  0,  0,  0,    0,  0,  0,  0},
+    const uint8_t boards_row_count = 1;
+    const uint8_t boards_column_count = 12;
+    const uint8_t row_count = LEDBoard::leds_per_column * boards_row_count;
+    const uint8_t column_count = LEDBoard::leds_per_row * boards_column_count;
+    const uint8_t effect_order[row_count][column_count] = {
+        // 1-4
+        // 5-8
+        // 9-12
+        { 7,  7,  7,  7,    7,  7,  7,  7,    7,  7,  7,  7,    7,  7,  7,  7,
+          7,  7,  7,  7,    7,  7,  7,  7,    7,  7,  7,  7,    7,  7,  7,  7,
+          7,  7,  7,  7,    7,  7,  7,  7,    7,  7,  7,  7,    7,  7,  7,  7},
+
+        { 8,  8,  8,  8,    8,  8,  8,  8,    8,  8,  8,  8,    8,  8,  8,  8,
+          8,  8,  8,  8,    8,  8,  8,  8,    8,  8,  8,  8,    8,  8,  8,  8,
+          8,  8,  8,  8,    8,  8,  8,  8,    8,  8,  8,  8,    8,  8,  8,  8},
+
+        { 9,  9,  9,  9,    9,  9,  9,  9,    9,  9,  9,  9,    9,  9,  9,  9,
+          9,  9,  9,  9,    9,  9,  9,  9,    9,  9,  9,  9,    9,  9,  9,  9,
+          9,  9,  9,  9,    9,  9,  9,  9,    9,  9,  9,  9,    9,  9,  9,  9},
+
+        {10, 10, 10, 10,   10, 10, 10, 10,   10, 10, 10, 10,   10, 10, 10, 10,
+          10, 10, 10, 10,   10, 10, 10, 10,   10, 10, 10, 10,   10, 10, 10, 10,
+          10, 10, 10, 10,   10, 10, 10, 10,   10, 10, 10, 10,   10, 10, 10, 10},
     };
 
     calculate_step__effectmap(
@@ -732,46 +736,83 @@ void calculate_step__wave_center2x4(
         tail_count);
 }
 
-void calculate_step__wave_center3(
+void calculate_step__wave_center_innerring(
     const uint8_t board_start_index = 0,
     const bool flag_mirror = false,
     const uint16_t tail[][3] = tail_water,
     const uint8_t tail_count = tail_water_count
 ) {
-    const uint8_t row_count_horizontal = LEDBoard::leds_per_column;
-    const uint8_t column_count_horizontal = LEDBoard::leds_per_row*3;
-    const uint8_t effect_order_horizontal_mirror
-        [row_count_horizontal][column_count_horizontal] {
-        {7,  7,    7,  7,  7,  7,    7,  7,  7,  7,    7,  7},
-        {6,  6,    6,  6,  6,  6,    6,  6,  6,  6,    6,  6},
-        {5,  5,    5,  5,  5,  5,    5,  5,  5,  5,    5,  5},
-        {4,  4,    4,  4,  4,  4,    4,  4,  4,  4,    4,  4},
-    };
-    const uint8_t effect_order_horizontal
-        [row_count_horizontal][column_count_horizontal] {
-        {4,  4,    4,  4,  4,  4,    4,  4,  4,  4,    4,  4},
-        {5,  5,    5,  5,  5,  5,    5,  5,  5,  5,    5,  5},
-        {6,  6,    6,  6,  6,  6,    6,  6,  6,  6,    6,  6},
-        {7,  7,    7,  7,  7,  7,    7,  7,  7,  7,    7,  7},
+    const uint8_t boards_row_count = 1;
+    const uint8_t boards_column_count = 12;
+    const uint8_t row_count = LEDBoard::leds_per_column * boards_row_count;
+    const uint8_t column_count = LEDBoard::leds_per_row * boards_column_count;
+    const uint8_t effect_order[row_count][column_count] {
+        // 1-3
+        // 4-6
+        { 3,  3,  3,  3,    3,  3,  3,  3,    3,  3,  3,  3,
+          3,  3,  3,  3,    3,  3,  3,  3,    3,  3,  3,  3},
+
+        { 4,  4,  4,  4,    4,  4,  4,  4,    4,  4,  4,  4,
+          4,  4,  4,  4,    4,  4,  4,  4,    4,  4,  4,  4},
+
+        { 5,  5,  5,  5,    5,  5,  5,  5,    5,  5,  5,  5,
+          5,  5,  5,  5,    5,  5,  5,  5,    5,  5,  5,  5},
+
+        { 6,  6,  6,  6,    6,  6,  6,  6,    6,  6,  6,  6,
+          6,  6,  6,  6,    6,  6,  6,  6,    6,  6,  6,  6},
     };
 
-    if (flag_mirror) {
-        calculate_step__effectmap(
-            &effect_order_horizontal_mirror[0][0],
-            row_count_horizontal,
-            column_count_horizontal,
-            board_start_index,
-            tail,
-            tail_count);
-    } else {
-        calculate_step__effectmap(
-            &effect_order_horizontal[0][0],
-            row_count_horizontal,
-            column_count_horizontal,
-            board_start_index,
-            tail,
-            tail_count);
-    }
+    calculate_step__effectmap(
+        &effect_order[0][0],
+        row_count,
+        column_count,
+        board_start_index,
+        tail,
+        tail_count);
+    // if (flag_mirror) {
+    //     calculate_step__effectmap(
+    //         &effect_order_horizontal_mirror[0][0],
+    //         row_count_horizontal,
+    //         column_count_horizontal,
+    //         board_start_index,
+    //         tail,
+    //         tail_count);
+    // } else {
+    //     calculate_step__effectmap(
+    //         &effect_order_horizontal[0][0],
+    //         row_count_horizontal,
+    //         column_count_horizontal,
+    //         board_start_index,
+    //         tail,
+    //         tail_count);
+    // }
+}
+
+
+void calculate_step__wave_center_center(
+    const uint8_t board_start_index = 0,
+    const uint16_t tail[][3] = tail_water,
+    const uint8_t tail_count = tail_water_count
+) {
+    const uint8_t boards_row_count = 1;
+    const uint8_t boards_column_count = 1;
+    const uint8_t row_count = LEDBoard::leds_per_column * boards_row_count;
+    const uint8_t column_count = LEDBoard::leds_per_row * boards_column_count;
+    const uint8_t effect_order[row_count][column_count] {
+        // 1
+        { 2,  2,  2,  2},
+        { 2,  1,  1,  2},
+        { 2,  1,  1,  2},
+        { 2,  2,  2,  2},
+    };
+
+    calculate_step__effectmap(
+        &effect_order[0][0],
+        row_count,
+        column_count,
+        board_start_index,
+        tail,
+        tail_count);
 }
 
 
@@ -781,30 +822,28 @@ void calculate_step_mounting_sun_spiral() {
     uint8_t board_start_index = 0;
 
     // create animaiton in center
-    // first row (3 boards)
+    // outer ring (12 boards)
+    calculate_step__sun_spiral_center3(board_start_index);
+    board_start_index += 3;
+    calculate_step__sun_spiral_center3(board_start_index);
+    board_start_index += 3;
+    calculate_step__sun_spiral_center3(board_start_index);
+    board_start_index += 3;
     calculate_step__sun_spiral_center3(board_start_index);
     board_start_index += 3;
 
-
-    // // second row (4 boards)
-    calculate_step__spiral2(board_start_index, true);
-    board_start_index += 2;
-    calculate_step__spiral2(board_start_index, true);
-    board_start_index += 2;
-
-    // thirt row (4 boards)
-    calculate_step__spiral2(board_start_index, true);
-    board_start_index += 2;
-    calculate_step__spiral2(board_start_index, true);
-    board_start_index += 2;
-
-    // fourth row (3 boards)
+    // inner ring (6 boards)
+    calculate_step__sun_spiral_center3(board_start_index);
+    board_start_index += 3;
     calculate_step__sun_spiral_center3(board_start_index);
     board_start_index += 3;
 
+    // center center (1 board)
+    calculate_step__spiral(board_start_index);
+    board_start_index += 1;
 
     // use spiral2 for arms
-    calculate_step__spiral2(board_start_index);
+    calculate_step__spiral2(board_start_index, true);
     // copy to all arms
     map_to_nBoards(board_start_index, LEDBoard::boards_count_sun_arms, 2);
 }
@@ -815,22 +854,21 @@ void calculate_step_mounting_sun_waves_blue() {
     uint8_t board_start_index = 0;
 
     // create animaiton in center
-    // first row (3 boards)
-    calculate_step__wave_center3(board_start_index, false);
-    board_start_index += 3;
 
-    // second row (4 boards)
-    // thirt row (4 boards)
-    calculate_step__wave_center2x4(board_start_index);
-    board_start_index += 4;
-    board_start_index += 4;
+    // outer ring (12 boards)
+    calculate_step__wave_center_outerring(board_start_index);
+    board_start_index += 12;
 
-    // fourth row (3 boards)
-    calculate_step__wave_center3(board_start_index, true);
-    board_start_index += 3;
+    // inner ring (6 boards)
+    calculate_step__wave_center_innerring(board_start_index, false);
+    board_start_index += 6;
+
+    // center center (1 board)
+    calculate_step__wave_center_center(board_start_index);
+    board_start_index += 1;
 
     // use spiral2 for arms
-    calculate_step__wave4(board_start_index);
+    calculate_step__wave4(board_start_index, true);
     // copy to all arms
     map_to_nBoards(board_start_index, LEDBoard::boards_count_sun_arms, 4);
 }
@@ -841,35 +879,33 @@ void calculate_step_mounting_sun_waves_orange() {
     uint8_t board_start_index = 0;
 
     // create animaiton in center
-    // first row (3 boards)
-    calculate_step__wave_center3(
-        board_start_index,
-        false,
-        tail_sun,
-        tail_sun_count);
-    board_start_index += 3;
 
-    // second row (4 boards)
-    // thirt row (4 boards)
-    calculate_step__wave_center2x4(
+    // outer ring (12 boards)
+    calculate_step__wave_center_outerring(
         board_start_index,
         tail_sun,
         tail_sun_count);
-    board_start_index += 4;
-    board_start_index += 4;
+    board_start_index += 12;
 
-    // fourth row (3 boards)
-    calculate_step__wave_center3(
+    // inner ring (6 boards)
+    calculate_step__wave_center_innerring(
         board_start_index,
         true,
         tail_sun,
         tail_sun_count);
-    board_start_index += 3;
+    board_start_index += 6;
+
+    // center (1 boards)
+    calculate_step__wave_center_center(
+        board_start_index,
+        tail_sun,
+        tail_sun_count);
+    board_start_index += 1;
 
     // use spiral2 for arms
     calculate_step__wave4(
         board_start_index,
-        false,
+        true,
         tail_sun,
         tail_sun_count);
     // copy to all arms
@@ -963,7 +999,7 @@ void calculate_step() {
             calculate_step_singleboard();
         } break;
         case sequencer_SPIRAL2: {
-            calculate_step__spiral2();
+            calculate_step__spiral2(0, true);
             // now map to all LEDBoard::tlc chips and write theme to output
             map_to_nBoards(0, LEDBoard::boards_count, 2);
         } break;

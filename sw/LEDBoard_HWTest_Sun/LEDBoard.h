@@ -46,9 +46,7 @@ namespace LEDBoard {
 
     // mounting sun specials
     const uint8_t boards_count_sun_arms = (6 * 4);
-    const uint8_t boards_count_sun_center = (3 + 4 + 4 + 3);
-    // const uint8_t boards_count_sun_arms = (3 * 4);
-    // const uint8_t boards_count_sun_center = (3 + 0 + 0 + 0);
+    const uint8_t boards_count_sun_center = (12 + 6 + 1);
     const uint8_t boards_count_sun =
         (boards_count_sun_arms + boards_count_sun_center);
     const uint16_t colorchannels_mounting_sun =
