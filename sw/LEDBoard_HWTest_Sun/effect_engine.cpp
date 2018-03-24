@@ -36,6 +36,8 @@ namespace effect_engine {
 
 sequencer_modes sequencer_mode = sequencer_OFF;
 
+bool sequencer_running = true;
+
 uint16_t value_low = 1;
 uint16_t value_high = 1000;
 
@@ -71,7 +73,7 @@ void calculate_step__effectmap(
     const uint16_t tail[][3],
     const uint8_t tail_count
 ) {
-    // Serial.println("calculate_step__effectmap: ");
+    Serial.println("calculate_step__effectmap: ");
 
     uint16_t ch_offset = LEDBoard::colorchannels_per_board * board_start_index;
 
@@ -80,12 +82,12 @@ void calculate_step__effectmap(
 
     for (size_t row = 0; row < row_count; row++) {
         for (size_t column = 0; column < column_count; column++) {
-            // Serial.print("step ");
-            // Serial.print(sequencer_current_step);
+            Serial.print("step ");
+            print_aligned_int8(Serial, sequencer_current_step);
             // Serial.print("; r");
-            // Serial.print(row);
+            // print_aligned_int8(Serial, row);
             // Serial.print("; c");
-            // Serial.print(column);
+            // print_aligned_int8(Serial, column);
 
             uint8_t pixel = 0;
             uint16_t ch = 0;
@@ -101,9 +103,9 @@ void calculate_step__effectmap(
             }
 
             // Serial.print("; br: ");
-            // Serial.print(board_row);
+            // print_aligned_int8(Serial, board_row);
             // Serial.print("; bc: ");
-            // Serial.print(board_column);
+            // print_aligned_int8(Serial, board_column);
 
             // calculate board offset count
 
@@ -112,33 +114,35 @@ void calculate_step__effectmap(
             uint8_t boards_offset =
                 (boards_offset_row * boards_per_row) + boards_offset_column;
             // Serial.print("; bor: ");
-            // Serial.print(boards_offset_row);
+            // print_aligned_int8(Serial, boards_offset_row);
             // Serial.print("; boc: ");
-            // Serial.print(boards_offset_column);
+            // print_aligned_int8(Serial, boards_offset_column);
             // Serial.print("; bo: ");
-            // Serial.print(boards_offset);
+            // print_aligned_int8(Serial, boards_offset);
 
             pixel = LEDBoard::channel_position_map[board_row][board_column];
             ch = pixel * 3;
             // Serial.print("; ch: ");
-            // Serial.print(ch);
+            // print_aligned_int16(Serial, ch);
 
             ch = ch +
                 (LEDBoard::colorchannels_per_board * (uint16_t)boards_offset);
             // Serial.print("; ch: ");
-            // Serial.print(ch);
+            // print_aligned_int16(Serial, ch);
 
             // Serial.print("; ch_offset: ");
-            // Serial.print(ch_offset + );
+            // print_aligned_int16(Serial, ch_offset);
 
             // Serial.print("; pixel: ");
-            // Serial.print(pixel);
+            // print_aligned_int8(Serial, pixel);
             // Serial.print("; ch: ");
-            // Serial.print(ch);
+            // print_aligned_int16(Serial, ch);
 
 
             // uint8_t effect_step = effect_map[row][column];
-            uint8_t effect_step = effect_map[(row *column_count) + column];
+            int8_t effect_step = effect_map[(row *column_count) + column];
+            Serial.print("; effect_step: ");
+            print_aligned_int8(Serial, effect_step);
 
             // if (effect_step == sequencer_current_step) {
             //     // Serial.print(" ON");
@@ -159,19 +163,26 @@ void calculate_step__effectmap(
 
             // tail
             int8_t tail_step = effect_step - sequencer_current_step;
+            Serial.print("; tail_step: ");
+            effect_engine::print_aligned_int8(Serial, tail_step);
 
-            if (sequencer_direction_forward) {
-                // change tail direction
-                tail_step = tail_count - tail_step;
-            }
+            // if (sequencer_direction_forward) {
+            //     // change tail direction
+            //     tail_step = tail_count - tail_step;
+            // }
+            // Serial.print("; tail_step: ");
+            // effect_engine::print_aligned_int8(Serial, tail_step);
 
             // add offset
             ch = ch_offset + ch;
 
-            if ((tail_step >= 0) && (tail_step < tail_count)) {
+            if ((tail_step >= 0) && (tail_step <= (tail_count-1))) {
+                Serial.print("; set.");
                 LEDBoard::tlc.setChannel(ch + 0, tail[tail_step][0]);
                 LEDBoard::tlc.setChannel(ch + 1, tail[tail_step][1]);
                 LEDBoard::tlc.setChannel(ch + 2, tail[tail_step][2]);
+            } else {
+                Serial.print("; NotInTailRange.");
             }
             // else {
             //     // set pixel to low
@@ -180,7 +191,7 @@ void calculate_step__effectmap(
             //     LEDBoard::tlc.setChannel(ch + 2, 0);
             // }
 
-            // Serial.println();
+            Serial.println();
         }
     }
 }
@@ -327,21 +338,28 @@ void calculate_step__spiral(const uint8_t board_start_index = 0) {
 
     const uint8_t column_count = LEDBoard::leds_per_row*1;
     const uint8_t row_count = LEDBoard::leds_per_column*1;
+    // const uint8_t effect_order[row_count][column_count] {
+    //     { 0,  1,  2,  3},
+    //     {11, 12, 13,  4},
+    //     {10, 15, 14,  5},
+    //     { 9,  8,  7,  6},
+    // };
     const uint8_t effect_order[row_count][column_count] {
         { 0,  1,  2,  3},
-        {11, 12, 13,  4},
-        {10, 15, 14,  5},
-        { 9,  8,  7,  6},
+        { 4,  5,  6,  7},
+        { 8,  9, 10, 11},
+        {12, 13, 14, 15},
     };
 
     const uint8_t tail_count = 3;
     uint16_t tail[tail_count][LEDBoard::colors_per_led] {
         //  red, green,   blue
+        {     0,     0,     0},
         {     0, 65000, 65000},
         {     0,     0,     0},
     };
     memcpy(
-        tail[0],
+        tail[1],
         sequencer_color,
         sizeof(uint16_t) * LEDBoard::colors_per_led);
 
@@ -354,19 +372,25 @@ void calculate_step__spiral(const uint8_t board_start_index = 0) {
         tail_count);
 }
 
-void calculate_step__spiral_next(uint8_t tail_count = 2) {
+void calculate_step__spiral_next(uint8_t tail_count = 3) {
     // prepare next step
     Serial.print("sequencer_current_step: ");
     Serial.println(sequencer_current_step);
     const int8_t effect_step_count = (
-      (LEDBoard::leds_per_column * LEDBoard::leds_per_row) - 1);
+      (LEDBoard::leds_per_column * LEDBoard::leds_per_row));
+    // this - 1 - 1 means:
+    // first we get the normal highest index.
+    // second we remove on last step 'from the tail'
+    // - this means we leave out on step..
+    const int8_t effect_step_highest = effect_step_count - 1 - 1;
 
-      // with direction change
+    // with direction change
     if (sequencer_direction_forward) {
         // forward
-        if (sequencer_current_step > (effect_step_count)) {
-            sequencer_current_step = sequencer_current_step + 1;
+        if (sequencer_current_step >= effect_step_highest) {
+            sequencer_current_step = sequencer_current_step - 1;
             sequencer_direction_forward = false;
+            Serial.println("##########################################");
             Serial.println("direction switch to backwards");
         } else {
             sequencer_current_step = sequencer_current_step + 1;
@@ -376,6 +400,7 @@ void calculate_step__spiral_next(uint8_t tail_count = 2) {
         if (sequencer_current_step <= 0) {
             sequencer_current_step = sequencer_current_step - 1;
             sequencer_direction_forward = true;
+            Serial.println("##########################################");
             Serial.println("direction switch to forward");
         } else {
             sequencer_current_step = sequencer_current_step - 1;
@@ -1060,7 +1085,7 @@ void calculate_step_next() {
 
 
 void update() {
-    if (sequencer_mode != sequencer_OFF) {
+    if (sequencer_running) {
         // update as often as possible
         // calculate_step();
         if ((millis() - calculate_timestamp_last) > calculate_interval) {
@@ -1074,6 +1099,27 @@ void update() {
         }
     }
 }
+
+
+void toggle_sequencer(
+    Print &out,
+    sequencer_modes sequence,
+    uint32_t interval
+) {
+    if (sequencer_mode == sequence) {
+        sequencer_running = !sequencer_running;
+        out.print(F("\t sequencer_running: '"));
+        out.print(sequencer_running);
+        out.print(F("'\n"));
+    } else {
+        sequencer_mode = sequence;
+        sequencer_running = true;
+        sequencer_direction_forward = true;
+        sequencer_interval = interval;
+        out.print(F("\t sequencer_mode changed\n"));
+    }
+}
+
 
 
 void test_update(Print &out) {
@@ -1162,5 +1208,37 @@ void test_update(Print &out) {
     out.println(F("__________________________________________"));
 }
 
+
+
+// void print_aligned_int16(Print &out, const char[] text, const int16_t value) {
+//     char line[6];
+//     snprintf(
+//         line,
+//         sizeof(line),
+//         "%s %3u",
+//         text
+//         value);
+//     out.print(line);
+// }
+
+void print_aligned_int8(Print &out, const int8_t value) {
+    char line[6];
+    snprintf(
+        line,
+        sizeof(line),
+        "%3i",
+        value);
+    out.print(line);
+}
+
+void print_aligned_int16(Print &out, const int16_t value) {
+    char line[6];
+    snprintf(
+        line,
+        sizeof(line),
+        "%5i",
+        value);
+    out.print(line);
+}
 
 }  // namespace effect_engine

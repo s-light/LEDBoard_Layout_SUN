@@ -343,6 +343,9 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
             out.println(F("\t current sequencer: '"));
             out.print(effect_engine::sequencer_mode);
             out.println(F("'"));
+            out.print(F("\t 'z': toggle sequencer_running ("));
+            out.print(effect_engine::sequencer_running);
+            out.println(F(")"));
             out.println(F("\t 'o': sequencer off"));
             out.println(F("\t 'a': toggle CHANNELCHECK"));
             out.println(F("\t 'A': toggle SPIRAL"));
@@ -366,6 +369,7 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
             out.println(F(")"));
             // ----------
             out.println();
+            out.println(F("\t 's': sequencer single step 's'"));
             out.print(F("\t 'u': set sequencer interval 'u65535' ("));
             out.print(effe::sequencer_interval);
             out.println(F(")"));
@@ -381,7 +385,7 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
             out.println(F(")"));
             out.println();
             out.println();
-            out.println(F("\t 's': set channel 's1:65535'"));
+            out.println(F("\t 'S': set channel 'S1:65535'"));
             // out.println(F("\t 'f': DemoFadeTo(ID, value) 'f1:65535'"));
             out.println();
             out.println(F("____________________________________________________________"));
@@ -432,93 +436,43 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
         // case 'A': {
         //     out.println(F("\t Hello World! :-)"));
         // } break;
+        case 'z': {
+          out.print(F("\t toggle sequencer_running: "));
+            effect_engine::sequencer_running = !effect_engine::sequencer_running;
+            out.print(effect_engine::sequencer_running);
+            out.print(F("\n"));
+        } break;
         case 'o': {
           out.print(F("\t sequencer_mode: OFF\n"));
-            effe::sequencer_mode = effe::sequencer_OFF;
+            effe::toggle_sequencer(out, effe::sequencer_OFF, 1000);
         } break;
         case 'a': {
-            out.println(F("\t toggle sequencer:"));
-            if (effe::sequencer_mode == effe::sequencer_CHANNELCHECK) {
-                effe::sequencer_mode = effe::sequencer_OFF;
-                out.print(F("\t sequencer_mode: OFF\n"));
-            }
-            else {
-                effe::sequencer_mode = effe::sequencer_CHANNELCHECK;
-                out.print(F("\t sequencer_mode: CHANNELCHECK\n"));
-            }
+            out.println(F("\t toggle CHANNELCHECK:"));
+            effe::toggle_sequencer(out, effe::sequencer_CHANNELCHECK, 1000);
         } break;
         case 'A': {
             out.println(F("\t toggle SPIRAL:"));
-            if (effe::sequencer_mode == effe::sequencer_SPIRAL) {
-                effe::sequencer_mode = effe::sequencer_OFF;
-                out.print(F("\t sequencer_mode: OFF\n"));
-            }
-            else {
-                effe::sequencer_mode = effe::sequencer_SPIRAL;
-                out.print(F("\t sequencer_mode: SPIRAL\n"));
-            }
+            effe::toggle_sequencer(out, effe::sequencer_SPIRAL, 1000);
         } break;
         case 'b': {
             out.println(F("\t toggle SPIRAL2:"));
-            if (effe::sequencer_mode == effe::sequencer_SPIRAL2) {
-                effe::sequencer_mode = effe::sequencer_OFF;
-                out.print(F("\t sequencer_mode: OFF\n"));
-            }
-            else {
-                effe::sequencer_mode = effe::sequencer_SPIRAL2;
-                out.print(F("\t sequencer_mode: SPIRAL2\n"));
-                effe::sequencer_interval = 100;
-            }
+            effe::toggle_sequencer(out, effe::sequencer_SPIRAL2, 100);
         } break;
         case 'B': {
             out.println(F("\t toggle SUN SPIRAL:"));
-            if (effe::sequencer_mode == effe::sequencer_SPIRAL) {
-                effe::sequencer_mode = effe::sequencer_OFF;
-                out.print(F("\t sequencer_mode: OFF\n"));
-            }
-            else {
-                effe::sequencer_mode = effe::sequencer_SUN_SPIRAL;
-                out.print(F("\t sequencer_mode: SUN SPIRAL\n"));
-                effe::sequencer_interval = 100;
-            }
+            effe::toggle_sequencer(out, effe::sequencer_SPIRAL, 100);
         } break;
         case 'c': {
             out.println(F("\t toggle HORIZONTAL:"));
-            if (effe::sequencer_mode == effe::sequencer_HORIZONTAL) {
-                effe::sequencer_mode = effe::sequencer_OFF;
-                out.print(F("\t sequencer_mode: OFF\n"));
-            }
-            else {
-                effe::sequencer_mode = effe::sequencer_HORIZONTAL;
-                out.print(F("\t sequencer_mode: HORIZONTAL\n"));
-                effe::sequencer_interval = 200;
-            }
+            effe::toggle_sequencer(out, effe::sequencer_HORIZONTAL, 200);
         } break;
         case 'C': {
             out.println(F("\t toggle SUN_WAVE:"));
-            if (effe::sequencer_mode == effe::sequencer_SUN_WAVE_BLUE) {
-                effe::sequencer_mode = effe::sequencer_OFF;
-                out.print(F("\t sequencer_mode: OFF\n"));
-            }
-            else {
-                effe::sequencer_mode = effe::sequencer_SUN_WAVE_BLUE;
-                out.print(F("\t sequencer_mode: SUN_WAVE\n"));
-                effe::sequencer_interval = 100;
-                effe::sequencer_direction_forward = true;
-            }
+            effe::toggle_sequencer(out, effe::sequencer_SUN_WAVE_BLUE, 100);
         } break;
         case 'd': {
             out.println(F("\t toggle SUN_WAVE2:"));
-            if (effe::sequencer_mode == effe::sequencer_SUN_WAVE_ORANGE) {
-                effe::sequencer_mode = effe::sequencer_OFF;
-                out.print(F("\t sequencer_mode: OFF\n"));
-            }
-            else {
-                effe::sequencer_mode = effe::sequencer_SUN_WAVE_ORANGE;
-                out.print(F("\t sequencer_mode: SUN_WAVE2\n"));
-                effe::sequencer_interval = 100;
-                effe::sequencer_direction_forward = true;
-            }
+            effe::toggle_sequencer(out, effe::sequencer_SUN_WAVE_ORANGE, 100);
         } break;
         // ------------------------------------------
         case 'r': {
@@ -549,6 +503,11 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
             dmx_handling::serial_out_interval = value;
         } break;
         // ------------------------------------------
+        case 's': {
+            out.print(F("\t sequencer single step  "));
+            effect_engine::calculate_step();
+            effect_engine::calculate_step_next();
+        } break;
         case 'u': {
             out.print(F("\t set sequencer interval "));
             // convert part of string to int
@@ -588,7 +547,7 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
             effe::value_high = value;
         } break;
         // ------------------------------------------
-        case 's': {
+        case 'S': {
             out.print(F("\t set channel "));
             // convert part of string to int
             // (up to first char that is not a number)

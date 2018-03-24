@@ -56,6 +56,7 @@ extern sequencer_modes sequencer_mode;
 extern uint16_t value_low;
 extern uint16_t value_high;
 
+extern bool sequencer_running;
 extern uint32_t sequencer_interval;
 extern uint32_t calculate_interval;
 
@@ -133,18 +134,24 @@ const uint16_t tail_sun[tail_sun_count][LEDBoard::colors_per_led] {
 void sequencer_off();
 
 void calculate_step();
+void calculate_step_next();
 
 void update();
+
+void toggle_sequencer(
+    Print &out,
+    sequencer_modes sequence,
+    uint32_t interval
+);
 
 void test_update(Print &out);
 
 // void set_hsv_color(uint16_t hue, uint16_t saturation, uint16_t value);
 void set_hsv_color(uint8_t hue, uint8_t saturation, uint8_t value);
 
+void print_aligned_int8(Print &out, const int8_t value);
+void print_aligned_int16(Print &out, const int16_t value);
+
 }  // namespace effect_engine
-
-
-
-
 
 #endif  // EFFECT_ENGINE_H_
