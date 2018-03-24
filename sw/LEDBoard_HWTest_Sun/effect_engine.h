@@ -78,9 +78,9 @@ const uint8_t tail_pink_count = 5;
 const uint16_t tail_pink[tail_pink_count][LEDBoard::colors_per_led] {
     //  red, green,   blue
     {     0,     0,     0},
-    {  5500,     0,  2000},
+    {     0, 10000, 20000},
     { 55000,     0, 20000},
-    {  5500,     0,  2000},
+    { 55000, 10000,     0},
     {     0,     0,     0},
 };
 

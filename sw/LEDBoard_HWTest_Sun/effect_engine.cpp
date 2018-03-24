@@ -71,7 +71,8 @@ void calculate_step__effectmap(
     const uint8_t board_start_index,
     // const uint16_t tail[][LEDBoard::colors_per_led],
     const uint16_t tail[][3],
-    const uint8_t tail_count
+    const uint8_t tail_count,
+    const bool change_tail_direction = false
 ) {
     Serial.println("calculate_step__effectmap: ");
 
@@ -166,12 +167,12 @@ void calculate_step__effectmap(
             Serial.print("; tail_step: ");
             effect_engine::print_aligned_int8(Serial, tail_step);
 
-            // if (sequencer_direction_forward) {
-            //     // change tail direction
-            //     tail_step = tail_count - tail_step;
-            // }
-            // Serial.print("; tail_step: ");
-            // effect_engine::print_aligned_int8(Serial, tail_step);
+            if (change_tail_direction && sequencer_direction_forward) {
+                // change tail direction
+                tail_step = tail_count - tail_step;
+                Serial.print("; tail_step: ");
+                effect_engine::print_aligned_int8(Serial, tail_step);
+            }
 
             // add offset
             ch = ch_offset + ch;
@@ -196,6 +197,64 @@ void calculate_step__effectmap(
     }
 }
 
+
+void calculate_step__next(
+    uint8_t step_count,
+    uint8_t tail_count,
+    bool auto_change_direction
+) {
+    // Serial.println("calculate_step__spiral2_next: ");
+    Serial.print("sequencer_current_step: ");
+    Serial.println(sequencer_current_step);
+    // this - 1 - 1 means:
+    // first we get the normal highest index.
+    // second we remove on last step 'from the tail'
+    // - this means we leave out on step..
+    // same for lowerend
+    uint8_t tail_start_and_end_offset = (1 + 1);
+    if (tail_count > tail_start_and_end_offset) {
+        tail_count = (tail_count - tail_start_and_end_offset);
+        if (step_count > tail_start_and_end_offset) {
+            step_count = (step_count - tail_start_and_end_offset);
+        }
+    }
+    const int8_t effect_step_highest = step_count;
+    const int8_t effect_step_lowest = (tail_count * -1);
+
+    // with direction change
+    if (sequencer_direction_forward) {
+        // forward
+        if (sequencer_current_step >= effect_step_highest) {
+            if (auto_change_direction) {
+                sequencer_current_step = sequencer_current_step - 1;
+                sequencer_direction_forward = false;
+                Serial.println("##########################################");
+                Serial.println("direction switch to backwards");
+            } else {
+                sequencer_current_step = effect_step_lowest;
+            }
+        } else {
+            sequencer_current_step = sequencer_current_step + 1;
+        }
+    } else {
+        // backwards
+        if (sequencer_current_step <= effect_step_lowest) {
+            if (auto_change_direction) {
+                sequencer_current_step = sequencer_current_step + 1;
+                sequencer_direction_forward = true;
+                Serial.println("##########################################");
+                Serial.println("direction switch to forward");
+            } else {
+                sequencer_current_step = effect_step_highest;
+            }
+        } else {
+            sequencer_current_step = sequencer_current_step - 1;
+        }
+    }
+
+    Serial.print("next step: ");
+    Serial.println(sequencer_current_step);
+}
 
 
 void map_to_allBoards() {
@@ -373,42 +432,10 @@ void calculate_step__spiral(const uint8_t board_start_index = 0) {
 }
 
 void calculate_step__spiral_next() {
-    // prepare next step
-    Serial.print("sequencer_current_step: ");
-    Serial.println(sequencer_current_step);
-    const int8_t effect_step_count = (
-      (LEDBoard::leds_per_column * LEDBoard::leds_per_row));
-    // this - 1 - 1 means:
-    // first we get the normal highest index.
-    // second we remove on last step 'from the tail'
-    // - this means we leave out on step..
-    const int8_t effect_step_highest = effect_step_count - 1 - 1;
-
-    // with direction change
-    if (sequencer_direction_forward) {
-        // forward
-        if (sequencer_current_step >= effect_step_highest) {
-            sequencer_current_step = sequencer_current_step - 1;
-            sequencer_direction_forward = false;
-            Serial.println("##########################################");
-            Serial.println("direction switch to backwards");
-        } else {
-            sequencer_current_step = sequencer_current_step + 1;
-        }
-    } else {
-        // backwards
-        if (sequencer_current_step <= 0) {
-            sequencer_current_step = sequencer_current_step - 1;
-            sequencer_direction_forward = true;
-            Serial.println("##########################################");
-            Serial.println("direction switch to forward");
-        } else {
-            sequencer_current_step = sequencer_current_step - 1;
-        }
-    }
-
-    Serial.print("next step: ");
-    Serial.println(sequencer_current_step);
+    calculate_step__next(
+        LEDBoard::leds_per_board,
+        3,
+        true);
 }
 
 
@@ -441,28 +468,6 @@ void calculate_step__horizontal_next() {
     if (sequencer_current_step >= LEDBoard::colorchannels_per_board) {
         sequencer_current_step = 0;
     }
-    // if (sequencer_direction_forward) {
-    //     // forward
-    //     if (sequencer_current_step >= LEDBoard::leds_per_column-1 ) {
-    //         sequencer_current_step = sequencer_current_step - 1;
-    //         sequencer_direction_forward = false;
-    //         // Serial.println("direction switch to backwards");
-    //     }
-    //     else {
-    //         sequencer_current_step = sequencer_current_step + 1;
-    //     }
-    // }
-    // else {
-    //     // backwards
-    //     if (sequencer_current_step == 0) {
-    //         sequencer_current_step = sequencer_current_step + 1;
-    //         sequencer_direction_forward = true;
-    //         // Serial.println("direction switch to forward");
-    //     }
-    //     else {
-    //         sequencer_current_step = sequencer_current_step - 1;
-    //     }
-    // }
 }
 
 
@@ -488,23 +493,10 @@ void calculate_step__hpline() {
 }
 
 void calculate_step__hpline_next() {
-    // prepare next step
-    // Serial.print("sequencer_current_step: ");
-    // Serial.println(sequencer_current_step);
-    // sequencer_current_step = sequencer_current_step + 1;
-    // if (sequencer_current_step >= LEDBoard::leds_per_column) {
-    //     sequencer_current_step = 0;
-    // }
-    if (sequencer_current_step == 0) {
-        sequencer_current_step = LEDBoard::leds_per_column-1;
-    } else {
-        sequencer_current_step = sequencer_current_step - 1;
-    }
-
-    // reset step numbers to range..
-    if (sequencer_current_step >= LEDBoard::leds_per_column) {
-        sequencer_current_step = LEDBoard::leds_per_column-1;
-    }
+    calculate_step__next(
+        (LEDBoard::leds_per_column),
+        0,
+        false);
 }
 
 
@@ -552,23 +544,24 @@ void calculate_step__spiral2(
             column_count_horizontal,
             board_start_index,
             // tail_orange,
-            // tail_orange_count);
+            // tail_orange_count,
             // tail_simple,
-            // tail_simple_count);
+            // tail_simple_count,
             tail_pink,
-            tail_pink_count);
+            tail_pink_count,
+            true);
     } else {
         calculate_step__effectmap(
             &spiral_order_vertical[0][0],
             row_count_vertical,
             column_count_vertical,
             board_start_index,
-            // tail_orange,
-            // tail_orange_count);
+            tail_orange,
+            tail_orange_count);
             // tail_simple,
             // tail_simple_count);
-            tail_pink,
-            tail_pink_count);
+            // tail_pink,
+            // tail_pink_count);
     }
 }
 
@@ -595,44 +588,11 @@ void calculate_step__sun_spiral_center3(const uint8_t board_start_index = 0) {
 
 void calculate_step__spiral2_next() {
     // Serial.println("calculate_step__spiral2_next: ");
-    Serial.print("sequencer_current_step: ");
-    Serial.println(sequencer_current_step);
-    const int8_t effect_step_count = (LEDBoard::leds_per_board * 2);
-    // this - 1 - 1 means:
-    // first we get the normal highest index.
-    // second we remove on last step 'from the tail'
-    // - this means we leave out on step..
-    const int8_t effect_step_highest = effect_step_count - 1 - 1;
-
-    // const int8_t effect_step_lowest = (tail_orange_count * -1);
-    // const int8_t effect_step_lowest = ((tail_simple_count-1) * -1);
-    const int8_t effect_step_lowest = ((tail_simple_count - 1 - 1) * -1);
-
-    // with direction change
-    if (sequencer_direction_forward) {
-        // forward
-        if (sequencer_current_step >= effect_step_highest) {
-            sequencer_current_step = sequencer_current_step - 1;
-            sequencer_direction_forward = false;
-            Serial.println("##########################################");
-            Serial.println("direction switch to backwards");
-        } else {
-            sequencer_current_step = sequencer_current_step + 1;
-        }
-    } else {
-        // backwards
-        if (sequencer_current_step <= effect_step_lowest) {
-            sequencer_current_step = sequencer_current_step + 1;
-            sequencer_direction_forward = true;
-            Serial.println("##########################################");
-            Serial.println("direction switch to forward");
-        } else {
-            sequencer_current_step = sequencer_current_step - 1;
-        }
-    }
-
-    Serial.print("next step: ");
-    Serial.println(sequencer_current_step);
+    calculate_step__next(
+        (LEDBoard::leds_per_board * 2),
+        // tail_orange_count,
+        tail_pink_count,
+        true);
 }
 
 
@@ -698,54 +658,10 @@ void calculate_step__wave4(
 }
 
 void calculate_step__wave4_next(uint8_t tail_count = tail_water_count) {
-    // prepare next step
-    // Serial.print("sequencer_current_step: ");
-    // Serial.println(sequencer_current_step);
-    const int8_t effect_step_count = (16);
-    // without direction change
-    // 'forward'
-    if (sequencer_current_step < effect_step_count) {
-        sequencer_current_step = sequencer_current_step + 1;
-    } else {
-        sequencer_current_step = (tail_count * -1) + 1;
-        // Serial.println("line4_next: start new itteration");
-    }
-    // backwards
-    // sequencer_direction_forward = false;
-    // if (sequencer_current_step <= (tail_count*-1)) {
-    //     sequencer_current_step = effect_step_count;
-    //     Serial.println("line4_next: start new itteration");
-    // }
-    // else {
-    //     sequencer_current_step = sequencer_current_step - 1;
-    // }
-
-    // with direction change
-    // if (sequencer_direction_forward) {
-    //     // forward
-    //     if (sequencer_current_step > effect_step_count) {
-    //         sequencer_current_step = sequencer_current_step - 1;
-    //         sequencer_direction_forward = false;
-    //         // Serial.println("direction switch to backwards");
-    //     }
-    //     else {
-    //         sequencer_current_step = sequencer_current_step + 1;
-    //     }
-    // }
-    // else {
-    //     // backwards
-    //     if (sequencer_current_step <= (tail_count*-1)) {
-    //         sequencer_current_step = sequencer_current_step + 1;
-    //         sequencer_direction_forward = true;
-    //         // Serial.println("direction switch to forward");
-    //     }
-    //     else {
-    //         sequencer_current_step = sequencer_current_step - 1;
-    //     }
-    // }
-
-    // Serial.print("next step: ");
-    // Serial.println(sequencer_current_step);
+    calculate_step__next(
+        (LEDBoard::leds_per_column * 4),
+        tail_count,
+        false);
 }
 
 
