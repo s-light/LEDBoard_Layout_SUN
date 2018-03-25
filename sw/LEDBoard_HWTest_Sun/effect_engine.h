@@ -67,12 +67,7 @@ extern uint8_t sequencer_direction_forward;
 extern uint16_t sequencer_color[];
 
 const uint8_t tail_simple_count = 3;
-const uint16_t tail_simple[tail_simple_count][LEDBoard::colors_per_led] {
-    //  red, green,   blue
-    {     0,     0,     0},
-    { 55000,     0, 20000},
-    {     0,     0,     0},
-};
+extern uint16_t tail_simple[tail_simple_count][LEDBoard::colors_per_led];
 
 const uint8_t tail_pink_count = 5;
 const uint16_t tail_pink[tail_pink_count][LEDBoard::colors_per_led] {
@@ -158,6 +153,9 @@ void calculate_step();
 void calculate_step_next();
 
 void update();
+
+void toggle_sequencer_direction(Print &out);
+void print_sequencer_direction(Print &out);
 
 void toggle_sequencer(
     Print &out,

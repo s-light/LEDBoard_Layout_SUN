@@ -340,11 +340,14 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
             out.println(F("\t 'X': test timings"));
             out.println();
             // out.println(F("\t 'A': Show 'HelloWorld' "));
-            out.println(F("\t current sequencer: '"));
+            out.print(F("\t current sequencer: '"));
             out.print(effect_engine::sequencer_mode);
             out.println(F("'"));
             out.print(F("\t 'z': toggle sequencer_running ("));
             out.print(effect_engine::sequencer_running);
+            out.println(F(")"));
+            out.print(F("\t 'Z': toggle sequencer_direction ("));
+            effect_engine::print_sequencer_direction(out);
             out.println(F(")"));
             out.println(F("\t 'o': sequencer off"));
             out.println(F("\t 'a': toggle CHANNELCHECK"));
@@ -441,6 +444,10 @@ void handleMenu_Main(slight_DebugMenu *pInstance) {
             effect_engine::sequencer_running = !effect_engine::sequencer_running;
             out.print(effect_engine::sequencer_running);
             out.print(F("\n"));
+        } break;
+        case 'Z': {
+          out.print(F("\t toggle sequencer_direction: "));
+            effect_engine::toggle_sequencer_direction(out);
         } break;
         case 'o': {
           out.print(F("\t sequencer_mode: OFF\n"));
