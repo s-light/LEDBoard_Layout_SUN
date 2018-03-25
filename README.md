@@ -3,7 +3,8 @@
 # LEDBoard Layout 'Sun'
 'Sun' build with [LEDBoard 4x4 16bit](https://github.com/s-light/LEDBoard_4x4_16bit)
 
-![Sun](photos/P1650166.JPG)
+![Sun](photos/P1660853_small.jpg)
+
 
 [Video: LEDBoard Layout Sun - first test](https://vimeo.com/253356118)
 
@@ -41,8 +42,7 @@ SW is a big TODO :-)
 in [mounting_sun/readme.md](mounting_sun/readme.md) are all information
 regarding the Hardware / frame to build the sun.
 
-![Mounting Sun](mounting_sun/mounting_sun.svg)
-
+![Mounting Sun](photos/P1660867_small.jpg)
 
 
 

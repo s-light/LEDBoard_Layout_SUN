@@ -16,7 +16,7 @@ this setup is done so you can control this with with the
 [LSM303_to_DMX](https://github.com/s-light/LSM303_to_DMX) Sketch.
 
 the DMX receiving has some glitches and sometimes generates wrong values.
-this only happens when the rendering/update process is active: `sequencer_mode != sequencer_OFF`
+this only happens when the rendering/update process is active: `sequencer_running == true`
 so seems there is some timing or interference problems in the thing...
 
 the external control is active in only some of the sequence modes.
