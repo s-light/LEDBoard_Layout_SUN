@@ -34,7 +34,7 @@ namespace effect_engine {
 // definitions
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-sequencer_modes sequencer_mode = sequencer_OFF;
+sequencer_modes sequencer_mode = sequencer_SUN_WAVE_ORANGE;
 
 bool sequencer_running = true;
 
@@ -42,7 +42,7 @@ uint16_t value_low = 1;
 uint16_t value_high = 1000;
 
 uint32_t sequencer_timestamp_last = millis();
-uint32_t sequencer_interval = 1000;
+uint32_t sequencer_interval = 100;
 uint32_t calculate_timestamp_last = millis();
 uint32_t calculate_interval = 100;
 
