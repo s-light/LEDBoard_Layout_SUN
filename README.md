@@ -57,9 +57,11 @@ regarding the Hardware / frame to build the sun.
 
 ---
 # License
-all Software in this repository is license under MIT License (see [LICENSE file](LICENSE))
+all* Software in this repository is license under MIT License (see [LICENSE file](LICENSE))
 
-all HW / Design files are licensed as CC-BY
+all* HW / Design files are licensed as CC-BY
+
+\*besides if otherwise state at the files/subfolders themselves. 
 
 <!-- License info -->
 <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">
